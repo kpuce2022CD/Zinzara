@@ -1,4 +1,5 @@
 # ZinZara
+---------------
 
 ### 뇌졸중 환자를 위한 스마트 스피커
 
@@ -15,5 +16,5 @@
 
 
 ### 트렐로 링크
-https://trello.com/b/Q3bHnKdO/zinzara
+> https://trello.com/b/Q3bHnKdO/zinzara
 
