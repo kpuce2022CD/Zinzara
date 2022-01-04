@@ -17,11 +17,3 @@
 
 ### 트렐로 링크
 > https://trello.com/b/Q3bHnKdO/zinzara
-
-
-
-
-
-
-
-asdasd
