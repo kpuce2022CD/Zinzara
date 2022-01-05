@@ -1,238 +1,70 @@
 package com.example.smarthomeforstroke
 
-import android.app.Activity
-import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
-import android.os.Message
-import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import androidx.annotation.WorkerThread
-import com.example.smarthomeforstroke.utils.AudioWriterPCM
-import com.naver.speech.clientapi.SpeechConfig
-import com.naver.speech.clientapi.SpeechRecognitionException
-import com.naver.speech.clientapi.SpeechRecognitionListener
-import com.naver.speech.clientapi.SpeechRecognitionResult
-import com.naver.speech.clientapi.SpeechRecognizer
-import java.lang.ref.WeakReference
-import java.util.logging.Handler
-import java.util.logging.LogRecord
+import android.view.MenuItem
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
+import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.startActivity
 
+class MainActivity : AppCompatActivity() {
 
-// 1. Main Activity 클래스
-class MainActivity : Activity() {
-
-    private var handler: RecognitionHandler? = null
-    private var naverRecognizer: NaverRecognizer? = null
-    private var txtResult: TextView? = null
-    private var btnStart: Button? = null
-    private var mResult: String? = null
-    private var writer: AudioWriterPCM? = null
-
+    lateinit var navigationView: NavigationView
+    lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        txtResult = findViewById<View>(R.id.txt_result) as TextView
-        btnStart = findViewById<View>(R.id.btn_start) as Button
-        handler = RecognitionHandler(this)
-        naverRecognizer = NaverRecognizer(this, handler!!, CLIENT_ID)
-        btnStart!!.setOnClickListener(View.OnClickListener {
-            fun onClick(v: View?) {
-                if (!naverRecognizer!!.speechRecognizer!!.isRunning()) {
-                    mResult = ""
-                    txtResult!!.text = "Connecting..."
-                    btnStart?.setText("Stop")
-                    naverRecognizer!!.recognize()
-                } else {
-                    Log.d(TAG, "stop and wait Final Result")
-                    btnStart!!.setEnabled(false)
-                    naverRecognizer!!.speechRecognizer?.stop()
+
+        btn_camera.setOnClickListener { startActivity<SmartHome>() }
+        btn_rehabilitation.setOnClickListener { startActivity<Rehabilitation>() }
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar) // toolBar를 통해 App Bar 생성
+        setSupportActionBar(toolbar) // 툴바 적용
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) // 드로어를 꺼낼 홈 버튼 활성화
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_dehaze_24) // 홈버튼 이미지 변경
+        supportActionBar?.setDisplayShowTitleEnabled(false) // 툴바에 타이틀 안보이게
+
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.nav_view)
+
+        navigationView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.menu_manage_device -> {
+                    startActivity<DeviceManage>()
+                    true
                 }
-            }
-        })
-    }
+                R.id.logout -> {
 
-    // Handle speech recognition Messages.
-    private fun handleMessage(msg: Message) {
-        when (msg.what) {
-            R.id.clientReady -> {
-                txtResult!!.text = "Connected"
-                writer =
-                    AudioWriterPCM(Environment.getExternalStorageDirectory().absolutePath + "/NaverSpeechTest")
-                writer!!.open("Test")
-            }
-            R.id.audioRecording -> writer!!.write(msg.obj as ShortArray)
-            R.id.partialResult -> {
-                mResult = msg.obj.toString()
-                txtResult!!.text = mResult
-            }
-            R.id.finalResult -> {
-                val speechRecognitionResult: SpeechRecognitionResult =
-                    msg.obj as SpeechRecognitionResult
-                val results: List<String> = speechRecognitionResult.getResults()
-                val strBuf = StringBuilder()
-                for (result in results) {
-                    strBuf.append(result)
-                    strBuf.append("\n")
-                }
-                mResult = strBuf.toString()
-                txtResult!!.text = mResult
-            }
-            R.id.recognitionError -> {
-                if (writer != null) {
-                    writer!!.close()
-                }
-                mResult = "Error code : " + msg.obj.toString()
-                txtResult!!.text = mResult
-                btnStart?.setText("Start")
-                btnStart?.setEnabled(true)
-            }
-            R.id.clientInactive -> {
-                if (writer != null) {
-                    writer!!.close()
-                }
-                btnStart?.setText("START")
-                btnStart?.setEnabled(true)
+                    true
+                }R.id.menu_tutorial_home -> {
+
+                true
+            }R.id.menu_tutorial_re -> {
+
+                true
+            }else -> false
             }
         }
     }
 
+    // 툴바 메뉴 버튼이 클릭 됐을 때 실행하는 함수
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-    override fun onStart() {
-        super.onStart() // 음성인식 서버 초기화는 여기서
-        naverRecognizer!!.speechRecognizer?.initialize()
+        // 클릭한 툴바 메뉴 아이템 id 마다 다르게 실행하도록 설정
+        when(item.itemId){
+            android.R.id.home->{
+                drawerLayout.openDrawer(GravityCompat.START)
+
+
+                    }
+            }
+
+        return super.onOptionsItemSelected(item)
+
     }
-
-    override fun onResume() {
-        super.onResume()
-        mResult = ""
-        txtResult!!.text = ""
-        btnStart?.setText(R.string.str_start)
-        btnStart?.setEnabled(true)
-    }
-
-    override fun onStop() {
-        super.onStop() // 음성인식 서버 종료
-        naverRecognizer!!.speechRecognizer?.release()
-    }
-
-    // Declare handler for handling SpeechRecognizer thread's Messages.
-
-    internal class RecognitionHandler(var activity: MainActivity) : Handler() {
-        private val mActivity: WeakReference<MainActivity>
-        fun handleMessage(msg: Message?) {
-            val activity = mActivity.get()
-            activity?.handleMessage(msg!!)
-        }
-
-        init {
-            mActivity = WeakReference(activity)
-        }
-
-        override fun publish(record: LogRecord?) {
-            TODO("Not yet implemented")
-        }
-
-        override fun flush() {
-            TODO("Not yet implemented")
-        }
-
-        override fun close() {
-            TODO("Not yet implemented")
-        }
-    }
-
-    companion object {
-        private val TAG = MainActivity::class.java.simpleName
-        private const val CLIENT_ID = "vc714b8wn0" // "내 애플리케이션"에서 Client ID를 확인해서 이곳에 적어주세요.
-    }
-}
-
-// 2. SpeechRecognitionListener를 상속한 클래스
-internal class NaverRecognizer(context: Context?, handler: Handler, clientId: String?) :
-    SpeechRecognitionListener {
-    public val mHandler: Handler
-    var speechRecognizer: SpeechRecognizer? = null
-
-    fun recognize() {
-        try {
-            speechRecognizer?.recognize(SpeechConfig(SpeechConfig.LanguageType.KOREAN, SpeechConfig.EndPointDetectType.AUTO))
-        } catch (e: SpeechRecognitionException) {
-            e.printStackTrace()
-        }
-    }
-
-    /*
-    @WorkerThread
-    override fun onInactive() {
-        mHandler.encoding
-        val msg: Message = Message.obtain(mHandler, R.id.clientInactive)
-        msg.sendToTarget()
-    }*/
-    @WorkerThread
-    override fun onInactive() {
-        val msg: Message = mHandler.obtainMessage(R.id.clientInactive)
-        msg.sendToTarget()
-    }
-
-
-    @WorkerThread
-    override fun onReady() {
-        val msg: Message = Message.obtain(mHandler,R.id.clientReady)
-        msg.sendToTarget()
-    }
-
-    @WorkerThread
-    override fun onRecord(speech: ShortArray?) {
-        val msg: Message = Message.obtain(mHandler, R.id.audioRecording, speech)
-        msg.sendToTarget()
-    }
-
-    @WorkerThread
-    override fun onPartialResult(result: String?) {
-        val msg: Message = Message.obtain(mHandler, R.id.partialResult, result)
-        msg.sendToTarget()
-    }
-
-    @WorkerThread
-    override fun onEndPointDetected() {
-        Log.d(TAG, "Event occurred : EndPointDetected")
-    }
-
-    @WorkerThread
-    override fun onResult(result: SpeechRecognitionResult?) {
-        val msg: Message = Message.obtain(mHandler, R.id.finalResult, result)
-        msg.sendToTarget()
-    }
-
-    @WorkerThread
-    override fun onError(errorCode: Int) {
-        val msg: Message = Message.obtain(mHandler, R.id.recognitionError, errorCode)
-        msg.sendToTarget()
-    }
-
-    @Override
-    @WorkerThread
-    override fun onEndPointDetectTypeSelected(epdType: SpeechConfig.EndPointDetectType?) {
-        val msg: Message = Message.obtain(mHandler, R.id.endPointDetectTypeSelected, epdType)
-        msg.sendToTarget()
-    }
-
-    companion object {
-        private val TAG = NaverRecognizer::class.java.simpleName
-    }
-
-    init {
-        mHandler = handler
-        try {
-            speechRecognizer = SpeechRecognizer(context, clientId)
-        } catch (e: SpeechRecognitionException) {
-            e.printStackTrace()
-        }
-        speechRecognizer?.setSpeechRecognitionListener(this)
-    }
-
 }
