@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     >
 
     <application
@@ -34,8 +35,6 @@
         <activity android:name=".ReExercise"></activity>
         <activity android:name=".Rehabilitation"/>
         <activity android:name=".ReLanguage"/>
-        <activity android:name=".DeviceManage"/>
-        <activity android:name=".DeviceSearch"/>
     </application>
 
 </manifest>

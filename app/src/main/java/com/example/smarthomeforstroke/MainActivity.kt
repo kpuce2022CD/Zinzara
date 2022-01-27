@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.menu_manage_device -> {
-                    startActivity<DeviceManage>()
+                    //startActivity<DeviceManage>()
                     true
                 }
                 R.id.logout -> {
