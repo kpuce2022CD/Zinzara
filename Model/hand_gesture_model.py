@@ -31,13 +31,10 @@ Y_encoded=np_utils.to_categorical(Y)
 print(X[0])
 print(X[0].shape)   # (40,)
 
-
 model=Sequential()
-model.add(Dense(128, input_dim=40, activation="relu"))
-model.add(Dense(64, activation="sigmoid"))
-model.add(Dense(32, activation="relu"))
-model.add(Dense(24, activation="sigmoid"))
-model.add(Dense(16, activation="relu"))
+model.add(Dense(64, input_dim=40, activation="relu"))
+model.add(Dense(48, activation="relu"))
+model.add(Dense(24, activation="relu"))
 model.add(Dense(10, activation="softmax"))
 
 model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
@@ -49,3 +46,4 @@ model=load_model("model_test.h5")
 print("Accuracy : {}".format(model.evaluate(X, Y_encoded)[1]))
 
 print(model.summary())
+
