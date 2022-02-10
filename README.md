@@ -15,13 +15,12 @@
 
 #### 시스템 수행 시나리오
 
-![system_scenario](C:\Users\User\Documents\GitHub\Zinzara\document\system_scenario.png)
+<img width="975" alt="system_scenario" src="https://user-images.githubusercontent.com/98944656/153368552-14bfecfe-94a9-40bf-967c-0cd3e313e7d9.png">
 
 <br>
 
 #### 시스템 구성도
-
-![system_config](C:\Users\User\Documents\GitHub\Zinzara\document\system_config.png)
+<img width="1020" alt="system_config" src="https://user-images.githubusercontent.com/98944656/153368563-c473d3c3-41fb-4485-bdb2-9a68e1405fb5.png">
 
 <br>
 
