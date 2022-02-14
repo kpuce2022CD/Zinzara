@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SmartHomeForStroke</string>
+    <string name="kakao_app_key">aaa</string>
+    <string name="kakao_native_key">kakaoaaa</string>
+</resources>
