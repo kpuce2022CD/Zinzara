@@ -50,6 +50,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -61,6 +62,7 @@
                     android:host="oauth"
                     android:scheme="4df83f26c9f39a9c0953c6641d5ce73f" />
             </intent-filter>
+
         </activity>
         <activity android:name=".SmartHome" />
         <activity android:name=".ReLanguage" />

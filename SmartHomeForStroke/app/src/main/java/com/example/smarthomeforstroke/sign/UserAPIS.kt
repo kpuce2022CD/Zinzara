@@ -1,7 +1,6 @@
 package com.example.smarthomeforstroke.sign
 
-import com.example.smarthomeforstroke.SignInInfo
-import com.example.smarthomeforstroke.SignUpInfo
+import com.example.smarthomeforstroke.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import retrofit2.Call
@@ -9,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.*
+import retrofit2.http.Body
 
 interface UserAPIS {
     @POST("/login/")
@@ -22,6 +22,18 @@ interface UserAPIS {
     fun requestSignUp(
         @Body jsonparams: SignUpInfo
     ):Call<SignUpInfo>
+
+    @POST("/physical-rehabilitation/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun postReExercise(
+        @Body jsonparams: ReExerciseSend
+    ):Call<ReExerciseInfo>
+
+    @GET("/physical-rehabilitation/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun getReExercise(
+        @Body jsonparams: UserInfo
+    ):Call<ReExerciseInfo>
 
 
     companion object{

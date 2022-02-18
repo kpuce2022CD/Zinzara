@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.example.smarthomeforstroke.MainActivity
 import com.example.smarthomeforstroke.SignInInfo
@@ -17,6 +18,7 @@ class SignInActivity : AppCompatActivity() {
     var userAPIS = UserAPIS.create()
     private var mBinding: ActivitySignInBinding? = null
     private val binding get() = mBinding!!
+    val PREFERENCE = "com.example.smarthomeforstroke"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +45,12 @@ class SignInActivity : AppCompatActivity() {
                     override fun onResponse(call: Call<String>, response: Response<String>) {
                         if (response.code() == 200){
                             // 로그인 성공
+                            val pref = getSharedPreferences(PREFERENCE, MODE_PRIVATE)
+                            val editor = pref.edit()
+                            editor.putString("user_id", id.toString())
+                            editor.putString("pw", pw.toString())
+                            editor.commit()
                             val intent = Intent(this@SignInActivity, MainActivity::class.java)
-                            intent.putExtra("user_id", id)
-                            intent.putExtra("pw", pw)
                             startActivity(intent)
                             finish()
                         }

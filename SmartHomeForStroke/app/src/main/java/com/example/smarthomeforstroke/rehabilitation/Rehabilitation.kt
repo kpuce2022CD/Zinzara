@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.smarthomeforstroke.databinding.ActivityRehabilitationBinding
-import com.example.smarthomeforstroke.databinding.ActivitySmarthomeBinding
 
 
 class Rehabilitation  : AppCompatActivity() {
@@ -25,7 +24,6 @@ class Rehabilitation  : AppCompatActivity() {
             val intent = Intent(this, ReLanguage::class.java)
             startActivity(intent)
         }
-
 
     }
 

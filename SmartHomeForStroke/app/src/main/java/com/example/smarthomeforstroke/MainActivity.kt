@@ -5,10 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.smarthomeforstroke.databinding.ActivityMainBinding
+import com.example.smarthomeforstroke.sign.SignInActivity
 import com.google.android.material.navigation.NavigationView
 
 
@@ -19,21 +23,26 @@ class MainActivity : AppCompatActivity() {
     lateinit var navigationView: NavigationView
     lateinit var drawerLayout: DrawerLayout
 
+    val PREFERENCE = "com.example.smarthomeforstroke"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        var pref = getSharedPreferences(PREFERENCE, MODE_PRIVATE)
+        var id = pref.getString("user_id", "")
+        var pw = pref.getString("pw", "")
+        binding.sessionInfo.text = "환영합니다" + id + "님" + pw
+
 
         binding.btnCamera.setOnClickListener {
             val intent = Intent(this, SmartHome::class.java)
             startActivity(intent)
-            finish()
         }
         binding.btnRehabilitation.setOnClickListener {
             val intent = Intent(this, Rehabilitation::class.java)
             startActivity(intent)
-            finish()
         }
 
         val toolbar: Toolbar = findViewById(R.id.toolbar) // toolBar를 통해 App Bar 생성
@@ -53,7 +62,9 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.logout -> {
-
+                    val intent = Intent(this, SignInActivity::class.java)
+                    startActivity(intent)
+                    finish()
                     true
                 }R.id.menu_tutorial_home -> {
 
@@ -63,6 +74,16 @@ class MainActivity : AppCompatActivity() {
                     true
                 }else -> false
             }
+        }
+
+        //헤더 정보 변경
+        val header = navigationView.getHeaderView(0)
+        val profileId = header.findViewById<View>(R.id.profile_id) as TextView
+        profileId.text = id.toString()
+        val profileImage = header.findViewById<View>(R.id.profile_image) as ImageView
+        profileImage.setOnClickListener {
+            val intent = Intent(this, UserProfileActivity::class.java)
+            startActivity(intent)
         }
 
     }

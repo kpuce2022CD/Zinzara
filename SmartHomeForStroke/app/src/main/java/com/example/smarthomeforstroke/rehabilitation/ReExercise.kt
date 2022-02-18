@@ -1,5 +1,6 @@
 package com.example.smarthomeforstroke
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -10,20 +11,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.smarthomeforstroke.databinding.ActivityReExerciseBinding
 import com.example.smarthomeforstroke.databinding.ActivityReLanguageBinding
+import com.example.smarthomeforstroke.sign.UserAPIS
 import org.w3c.dom.Text
+import retrofit2.Call
 import java.util.*
-import kotlin.concurrent.thread
-import kotlin.concurrent.timer
+import retrofit2.Callback
+import retrofit2.Response
+
 
 class ReExercise : AppCompatActivity() {
 
+    var userAPIS = UserAPIS.create()
     private var mBinding: ActivityReExerciseBinding? = null
     private val binding get() = mBinding!!
+
+    val PREFERENCE = "com.example.smarthomeforstroke"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityReExerciseBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        var pref = getSharedPreferences(PREFERENCE, MODE_PRIVATE)
+        var id = pref.getString("user_id", "")
+        var pw = pref.getString("pw", "")
 
         Thread(Runnable {
             val img = findViewById<ImageView>(R.id.img_finger)
@@ -33,6 +45,7 @@ class ReExercise : AppCompatActivity() {
             val score = findViewById<TextView>(R.id.tv_score)
             val etCorrect = findViewById<TextView>(R.id.et_correct)
             var cnt = 0
+            val intent = Intent(this, Rehabilitation::class.java)
 
             for( i in 1..5) {
                 val random = Random()
@@ -91,17 +104,41 @@ class ReExercise : AppCompatActivity() {
                 }
             }
 
-            var builder = AlertDialog.Builder(this)
-            builder.setTitle("점수")
-            builder.setMessage(cnt.toString())
-            runOnUiThread{
-                builder.show()
-            }
+
+            val reExerciseSend = ReExerciseSend(id.toString(), pw.toString(), cnt, "")
+            userAPIS.postReExercise(reExerciseSend).enqueue(object : Callback<ReExerciseInfo>{
+                override fun onResponse(
+                    call: Call<ReExerciseInfo>,
+                    response: Response<ReExerciseInfo>
+                ) {
+                    var builder = AlertDialog.Builder(this@ReExercise)
+                    builder.setTitle("점수 저장 되었습니다")
+                    builder.setMessage(cnt.toString() + "점")
+                    runOnUiThread{
+                        builder.show()
+                    }
+                    startActivity(intent)
+                    finish()
+                }
+
+                override fun onFailure(call: Call<ReExerciseInfo>, t: Throwable) {
+                    errorDialog("점수저장", t)
+                }
+
+            })
+
 
         }).start()
 
 
 
 
+    }
+    fun errorDialog(msg: String, t: Throwable){
+        val dialog = AlertDialog.Builder(this)
+        Log.e(msg, t.message.toString())
+        dialog.setTitle("$msg 에러")
+        dialog.setMessage("호출실패했습니다.")
+        dialog.show()
     }
 }

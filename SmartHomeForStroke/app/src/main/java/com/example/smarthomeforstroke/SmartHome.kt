@@ -24,14 +24,6 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-data class WEATHER (val response : RESPONSE)
-data class RESPONSE(val header : HEADER, val body : BODY)
-data class HEADER(val resultCode : Int, val resultMsg : String)
-data class BODY(val dataType : String, val items : ITEMS)
-data class ITEMS(val item : List<ITEM>)
-// category : 자료 구분 코드, fcstDate : 예측 날짜, fcstTime : 예측 시간, fcstValue : 예보 값
-data class ITEM(val category : String, val fcstDate : String, val fcstTime : String, val fcstValue : String)
-
 
 val gson : Gson = GsonBuilder()
     .setLenient()
@@ -52,7 +44,7 @@ object ApiObject {
 
 class SmartHome : AppCompatActivity() {
 
-    lateinit private var binding : ActivitySmarthomeBinding
+    private lateinit var binding : ActivitySmarthomeBinding
     private var preview : Preview? = null
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
@@ -62,6 +54,7 @@ class SmartHome : AppCompatActivity() {
     private var cameraController : CameraControl? = null
     private var cameraInfo: CameraInfo? = null
 
+
     private var rainRatio : String? = null
     private var rainType : String? = null
     private var humidity : String? = null
@@ -69,25 +62,23 @@ class SmartHome : AppCompatActivity() {
     private var temp : String? = null
 
 
-    var base_date = "20210703"  // 발표 일자
-    var base_time = "1400"      // 발표 시각
+    private var base_date = "20210703"  // 발표 일자
+    private var base_time = "1400"      // 발표 시각
     var nx = "55"               // 예보지점 X 좌표
     var ny = "127"              // 예보지점 Y 좌표
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySmarthomeBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
+        setContentView(view)
 
 
         binding.btnWeather.setOnClickListener {
             setWeather(nx, ny)
 
         }
-
 
 
 
@@ -129,27 +120,20 @@ class SmartHome : AppCompatActivity() {
     fun setWeather(nx : String, ny : String) {
         // 준비 단계 : base_date(발표 일자), base_time(발표 시각)
         // 현재 날짜, 시간 정보 가져오기
-        val cal = Calendar.getInstance()
-        base_date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time) // 현재 날짜
-        val timeH = SimpleDateFormat("HH", Locale.getDefault()).format(cal.time) // 현재 시각
-        val timeM = SimpleDateFormat("HH", Locale.getDefault()).format(cal.time) // 현재 분
-        // API 가져오기 적당하게 변환
-        base_time = getBaseTime(timeH, timeM)
-        // 동네예보  API는 3시간마다 현재시간+4시간 뒤의 날씨 예보를 알려주기 때문에
-        // 현재 시각이 00시가 넘었다면 어제 예보한 데이터를 가져와야함
-        if (timeH == "00" && base_time == "2330") {
-            cal.add(Calendar.DATE, -1).toString()
-            base_date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time)
-        }
+        setTime()
+
         // 날씨 정보 가져오기
         // (응답 자료 형식-"JSON", 한 페이지 결과 수 = 10, 페이지 번호 = 1, 발표 날싸, 발표 시각, 예보지점 좌표)
-        val call = ApiObject.retrofitService.GetWeather(60, 1, "JSON", base_date, base_time, nx, ny)
+        val call = ApiObject.retrofitService.GetWeather("JSON",60, 1, base_date, base_time, nx, ny)
 
         // 비동기적으로 실행하기
         call.enqueue(object : retrofit2.Callback<WEATHER> {
             // 응답 성공 시
             override fun onResponse(call: Call<WEATHER>, response: Response<WEATHER>) {
-                if (response.isSuccessful) {
+                if (response.body()!!.response.header.resultCode == 0){
+                    Log.d("에러", response.toString())
+                    Log.d("에러", response.body().toString())
+
                     // 날씨 정보 가져오기
                     var it: List<ITEM> = response.body()!!.response.body.items.item
 
@@ -158,18 +142,16 @@ class SmartHome : AppCompatActivity() {
                     var humidity = ""       // 습도
                     var sky = ""            // 하능 상태
                     var temp = ""           // 기온
-                    for (i in 0..9) {
+                    for (i in 0 until response.body()!!.response.body.totalCount) {
                         when(it[i].category) {
-                            "POP" -> rainRatio = it[i].fcstValue    // 강수 기온
-                            "PTY" -> rainType = it[i].fcstValue     // 강수 형태
-                            "REH" -> humidity = it[i].fcstValue     // 습도
+                            "T1H" -> temp = it[i].fcstValue         // 기온
+                            "RN1" -> rainRatio = it[i].fcstValue
                             "SKY" -> sky = it[i].fcstValue          // 하늘 상태
-                            "T3H" -> temp = it[i].fcstValue         // 기온
+                            "REH" -> humidity = it[i].fcstValue     // 습도
+                            "PTY" -> rainType = it[i].fcstValue     // 강수 형태
                             else -> continue
                         }
-
                     }
-
                     // 강수 형태
                     var result1 = ""
                     when(rainType) {
@@ -177,7 +159,6 @@ class SmartHome : AppCompatActivity() {
                         "1" -> result1 = "비"
                         "2" -> result1 = "비/눈"
                         "3" -> result1 = "눈"
-                        "4" -> result1 = "소나기"
                         "5" -> result1 = "빗방울"
                         "6" -> result1 = "빗방울/눈날림"
                         "7" -> result1 = "눈날림"
@@ -191,18 +172,15 @@ class SmartHome : AppCompatActivity() {
                         "4" -> result2 = "흐림"
                         else -> "오류"
                     }
+                    binding.btnWeather.text = it[1].fcstValue
 
-
-                    binding.btnWeather.text = it[1].fcstValue.toString()
-
-                    /*
                     val dialog = AlertDialog.Builder(this@SmartHome)
                     dialog.setTitle("오늘의 날씨")
                     dialog.setMessage("강수 확률 : $rainRatio%, $result1, 습도 : $humidity%, $result2, 온도 : $temp°")
                     dialog.show()
-*/
-                    // 토스트 띄우기
-                    Toast.makeText(applicationContext, it[0].fcstDate + ", " + it[0].fcstTime + "의 날씨 정보입니다.", Toast.LENGTH_SHORT).show()
+
+                    Toast.makeText(applicationContext, base_date + ", " + base_time + "의 날씨 정보입니다.", Toast.LENGTH_SHORT).show()
+
                 }
             }
 
@@ -213,31 +191,21 @@ class SmartHome : AppCompatActivity() {
         })
     }
 
+    private fun setTime(){
+        val cal = Calendar.getInstance()
+        base_date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time) // 현재 날짜
+        val time = SimpleDateFormat("HH", Locale.getDefault()).format(cal.time) // 현재 시각
+        // API 가져오기 적당하게 변환
 
-
-    private fun getBaseTime(h : String, m : String) : String {
-        var result = ""
-
-        // 45분 전이면
-        if (m.toInt() < 45) {
-            // 0시면 2330
-            if (h == "00") result = "2330"
-            // 아니면 1시간 전 날씨 정보 부르기
-            else {
-                var resultH = h.toInt() - 1
-                // 1자리면 0 붙여서 2자리로 만들기
-                if (resultH < 10) result = "0" + resultH + "30"
-                // 2자리면 그대로
-                else result = resultH.toString() + "30"
-            }
+        if (time == "00"){
+            cal.add(Calendar.DATE, -1).toString()
+            base_time = "2300"
+            base_date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time)
         }
-        // 45분 이후면 바로 정보 받아오기
-        else result = h + "30"
-
-        return result
+        else{
+            base_time = time + "00"
+        }
     }
-
-
 
     private fun takePhoto() {
 // Get a stable reference of the modifiable image capture use case
@@ -265,8 +233,6 @@ class SmartHome : AppCompatActivity() {
                 }
             })
     }
-
-
 
     // viewFinder 설정 : Preview
     private fun startCamera() {
