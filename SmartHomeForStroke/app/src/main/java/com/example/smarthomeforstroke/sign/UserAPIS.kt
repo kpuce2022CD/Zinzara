@@ -35,9 +35,16 @@ interface UserAPIS {
         @Body jsonparams: UserInfo
     ):Call<ReExerciseInfo>
 
+    @POST("/gestures/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun postImgImfo(
+        @Body jsonparams: ImgInfo
+    ):Call<String>
+
+
 
     companion object{
-        private const val ipv4 = "172.30.1.41"
+        private const val ipv4 = "172.30.1.58"
         private const val port = "8000"
         fun create(): UserAPIS{
             val gson: Gson = GsonBuilder().setLenient().create()

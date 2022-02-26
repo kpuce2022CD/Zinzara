@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/RestAPI Android Project/CameraX/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/RestAPI Android Project/CameraX/app/src/main/res/layout/activity_camera_x.xml" value="0.1" />
+        <entry key="..\:/RestAPI Android Project/CameraX/app/src/main/res/layout/activity_launch.xml" value="0.25" />
+        <entry key="..\:/RestAPI Android Project/CameraX/app/src/main/res/layout/activity_main.xml" value="0.1" />
       </map>
     </option>
   </component>

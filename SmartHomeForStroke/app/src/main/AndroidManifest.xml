@@ -13,10 +13,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-feature android:name="android.hardware.camera.any" />
-
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
         android:allowBackup="true"
@@ -27,6 +28,7 @@
         android:theme="@style/Theme.SmartHomeForStroke"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
+
         <activity
             android:name=".UserProfileActivity"
             android:exported="true" />
@@ -36,24 +38,8 @@
             android:exported="true">
 
 
-
-
-
-
-
-
-
-        </activity>
-        <activity
-            android:name=".sign.SignUpActivity"
-            android:exported="true" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true" >
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -64,10 +50,20 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name=".sign.SignUpActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" >
+
+        </activity>
         <activity android:name=".SmartHome" />
         <activity android:name=".ReLanguage" />
         <activity android:name=".Rehabilitation" />
         <activity android:name=".ReExercise" />
+
     </application>
 
 </manifest>

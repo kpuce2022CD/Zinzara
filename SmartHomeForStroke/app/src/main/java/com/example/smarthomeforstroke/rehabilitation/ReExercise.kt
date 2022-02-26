@@ -1,13 +1,24 @@
 package com.example.smarthomeforstroke
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.smarthomeforstroke.databinding.ActivityReExerciseBinding
 import com.example.smarthomeforstroke.databinding.ActivityReLanguageBinding
@@ -17,6 +28,10 @@ import retrofit2.Call
 import java.util.*
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.text.SimpleDateFormat
+import kotlin.collections.ArrayList
 
 
 class ReExercise : AppCompatActivity() {
@@ -27,11 +42,24 @@ class ReExercise : AppCompatActivity() {
 
     val PREFERENCE = "com.example.smarthomeforstroke"
 
+    private var preview : Preview? = null
+    private var imageCapture: ImageCapture? = null
+    private lateinit var filepath : String
+
+    var answer = arrayOf("0")
+    var question = arrayOf("0")
+    var num : Int = 0
+    var cnt = 0
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityReExerciseBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        startCamera()
+
+        filepath = File(getMyExternalMediaDirs(), newJpgFileName()).absolutePath
 
         var pref = getSharedPreferences(PREFERENCE, MODE_PRIVATE)
         var id = pref.getString("user_id", "")
@@ -40,20 +68,15 @@ class ReExercise : AppCompatActivity() {
         Thread(Runnable {
             val img = findViewById<ImageView>(R.id.img_finger)
             val tvNum = findViewById<TextView>(R.id.tv_num)
-            val tvQuest = findViewById<TextView>(R.id.tv_quest)
-            val btnSend = findViewById<Button>(R.id.btn_send)
             val score = findViewById<TextView>(R.id.tv_score)
-            val etCorrect = findViewById<TextView>(R.id.et_correct)
-            var cnt = 0
             val intent = Intent(this, Rehabilitation::class.java)
 
             for( i in 1..5) {
                 val random = Random()
-                val num = random.nextInt(9)
+                num = random.nextInt(9)
+                question.plus(num.toString())
                 runOnUiThread {
-                    btnSend.isEnabled = true
                     tvNum.text = "$i/5"
-                    tvQuest.text = num.toString()
                 }
                 when (num) {
                     0 -> runOnUiThread {
@@ -95,15 +118,24 @@ class ReExercise : AppCompatActivity() {
                 }
                 Thread.sleep(5000)
 
-                if (etCorrect.text.toString().equals(num.toString())){
-                    cnt += 1
-                    runOnUiThread{
-                        score.text = cnt.toString()
-                        btnSend.isEnabled = false
-                    }
+                takePicture(filepath!!)
+//
+//                if (answer.equals(num.toString())){
+//                    cnt += 1
+//                    runOnUiThread{
+//                        score.text = cnt.toString()
+//                    }
+//                }
+
+            }
+            Thread.sleep(20000)
+
+
+            for (i in 1..5){
+                if (answer[i] == question[i]){
+                    cnt++
                 }
             }
-
 
             val reExerciseSend = ReExerciseSend(id.toString(), pw.toString(), cnt, "")
             userAPIS.postReExercise(reExerciseSend).enqueue(object : Callback<ReExerciseInfo>{
@@ -127,11 +159,7 @@ class ReExercise : AppCompatActivity() {
 
             })
 
-
         }).start()
-
-
-
 
     }
     fun errorDialog(msg: String, t: Throwable){
@@ -140,5 +168,191 @@ class ReExercise : AppCompatActivity() {
         dialog.setTitle("$msg 에러")
         dialog.setMessage("호출실패했습니다.")
         dialog.show()
+    }
+
+    private fun takePicture(filepath : String) {
+        val photoFile = File(filepath)
+// Create output options object which contains file + metadata
+        val outputOptions = ImageCapture
+            .OutputFileOptions
+            .Builder(photoFile)
+            .build()
+// Set up image capture listener, which is triggered after photo has
+// been taken
+        imageCapture?.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e("CameraX_Debug", "Photo capture failed: ${exc.message}", exc)
+                }
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+//                    val resultIntent = Intent()
+//                    setResult(Activity.RESULT_OK, resultIntent)
+//                    finish()
+                    val bitmap = BitmapFactory.decodeFile(filepath)
+//                    binding.imageView.setImageBitmap(rotatedBitmap(bitmap))
+
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 70, baos)
+                    val bytes = baos.toByteArray()
+                    val temp = Base64.encodeToString(bytes, Base64.DEFAULT)
+
+                    Log.d("temp", temp.toString())
+
+                    //temp가 Base64
+
+                    val ImgInfo = ImgInfo(temp)
+                    ImgInfo.img = temp
+
+                    userAPIS.postImgImfo(ImgInfo).enqueue(object : Callback<String>{
+                        override fun onResponse(call: Call<String>, response: Response<String>) {
+                            if (response.code() == 210){
+                                toast("0")
+                                answer.plus("0")
+                            }
+                            else if (response.code() == 211){
+                                toast("1")
+                                answer.plus("1")
+                            }
+                            else if (response.code() == 212){
+                                toast("2")
+                                answer.plus("2")
+                            }
+                            else if (response.code() == 213){
+                                toast("3")
+                                answer.plus("3")
+                            }
+                            else if (response.code() == 214){
+                                toast("4")
+                                answer.plus("4")
+                            }
+                            else if (response.code() == 215){
+                                toast("5")
+                                answer.plus("5")
+                            }
+                            else if (response.code() == 216){
+                                toast("6")
+                                answer.plus("6")
+                            }
+                            else if (response.code() == 217){
+                                toast("7")
+                                answer.plus("7")
+                            }
+                            else if (response.code() == 218){
+                                toast("8")
+                                answer.plus("8")
+                            }
+                            else if (response.code() == 219){
+                                toast("9")
+                                answer.plus("9")
+                            }
+                            else {
+                                toast("error")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<String>, t: Throwable) {
+                            errorDialog("ImgPost", t)
+                        }
+
+                    })
+
+
+                }
+            })
+    }
+
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener(Runnable {
+// Used to bind the lifecycle of cameras to the lifecycle owner
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+// Preview
+            preview = Preview.Builder()
+                .setTargetRotation(windowManager.defaultDisplay.rotation)
+                .build()
+                .also {
+                    it.setSurfaceProvider(binding.preView.surfaceProvider)
+                }
+// ImageCapture
+            imageCapture = ImageCapture.Builder()
+                .build()
+            val cameraSelector = CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .build()
+            try {
+// Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+// Bind use cases to camera
+                cameraProvider.bindToLifecycle(
+                    this,
+                    cameraSelector,
+                    preview,
+                    imageCapture)
+            } catch(exc: Exception) {
+                Log.e("CameraX_Debug", "Use case binding failed", exc)
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun getOrientationOfImage(filepath : String): Int? {
+        var exif : ExifInterface? = null
+        var result: Int? = null
+        try{
+            exif = ExifInterface(filepath)
+        }catch (e: Exception){
+            e.printStackTrace()
+            return -1
+        }
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)
+        if(orientation != -1){
+            result = when(orientation){
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+        }
+        return result
+    }
+
+    private fun rotatedBitmap(bitmap: Bitmap?): Bitmap? {
+        val matrix = Matrix()
+        var resultBitmap : Bitmap? = null
+        when(getOrientationOfImage(filepath)){
+            0 -> matrix.setRotate(0F)
+            90 -> matrix.setRotate(90F)
+            180 -> matrix.setRotate(180F)
+            270 -> matrix.setRotate(270F)
+        }
+        resultBitmap = try{
+            bitmap?.let { Bitmap.createBitmap(it, 0, 0, bitmap.width, bitmap.height, matrix, true) }
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+        return resultBitmap
+    }
+
+    private fun newJpgFileName(): String {
+        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val filename = sdf.format(System.currentTimeMillis())
+        return "${filename}.jpg"
+    }
+
+    private fun getMyExternalMediaDirs(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, resources.getString(R.string.app_name)).apply {
+                mkdirs()
+            }
+        }
+        return if (mediaDir != null && mediaDir.exists()) mediaDir
+        else filesDir
+    }
+
+
+    fun toast(message: String){
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

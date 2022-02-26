@@ -1,6 +1,8 @@
 package com.example.smarthomeforstroke
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +10,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.smarthomeforstroke.databinding.ActivityMainBinding
@@ -22,6 +27,17 @@ class MainActivity : AppCompatActivity() {
     private val binding get() = mBinding!!
     lateinit var navigationView: NavigationView
     lateinit var drawerLayout: DrawerLayout
+
+    private val PERMISSIONS = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
+    private val PERMISSIONS_REQ = 100
+
+    //    private lateinit var filepath : String
+    private val CAMERAX_REQUEST = 100
 
     val PREFERENCE = "com.example.smarthomeforstroke"
 
@@ -37,8 +53,10 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.btnCamera.setOnClickListener {
-            val intent = Intent(this, SmartHome::class.java)
-            startActivity(intent)
+            if(checkPermissions(PERMISSIONS, PERMISSIONS_REQ)){
+                val nextIntent = Intent(this, SmartHome::class.java)
+                startActivityForResult(nextIntent, CAMERAX_REQUEST)
+            }
         }
         binding.btnRehabilitation.setOnClickListener {
             val intent = Intent(this, Rehabilitation::class.java)
@@ -102,6 +120,31 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() { // onDestroy 에서 binding class 인스턴스 참조를 정리해주어야 한다.
         mBinding = null
         super.onDestroy()
+    }
+
+    private fun checkPermissions(permissions: Array<String>, permissionsRequest: Int): Boolean {
+        val permissionList : MutableList<String> = mutableListOf()
+        for(permission in permissions){
+            val result = ContextCompat.checkSelfPermission(this, permission)
+            if(result != PackageManager.PERMISSION_GRANTED){
+                permissionList.add(permission)
+            }
+        }
+        if(permissionList.isNotEmpty()){
+            ActivityCompat.requestPermissions(this, permissionList.toTypedArray(), permissionsRequest)
+            return false
+        }
+        return true
+    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        for(result in grantResults){
+            if(result != PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "권한 승인 부탁드립니다.", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+        }
     }
 
 

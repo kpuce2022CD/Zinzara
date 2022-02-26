@@ -30,5 +30,9 @@ data class ReExerciseInfo(
     var rehabilitation_time : String
 )
 
+data class ImgInfo(
+    var img : String
+)
+
 
 

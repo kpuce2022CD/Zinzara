@@ -1,8 +1,13 @@
 package com.example.smarthomeforstroke
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -12,17 +17,21 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.smarthomeforstroke.databinding.ActivitySmarthomeBinding
+import com.example.smarthomeforstroke.sign.UserAPIS
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.jar.Manifest
 
 
 val gson : Gson = GsonBuilder()
@@ -44,77 +53,34 @@ object ApiObject {
 
 class SmartHome : AppCompatActivity() {
 
+    var userAPIS = UserAPIS.create()
     private lateinit var binding : ActivitySmarthomeBinding
-    private var preview : Preview? = null
-    private var imageCapture: ImageCapture? = null
-    private lateinit var outputDirectory: File
-    private lateinit var cameraExecutor: ExecutorService
-
-    private var camera : Camera? = null
-    private var cameraController : CameraControl? = null
-    private var cameraInfo: CameraInfo? = null
-
-
-    private var rainRatio : String? = null
-    private var rainType : String? = null
-    private var humidity : String? = null
-    private var sky : String? = null
-    private var temp : String? = null
-
 
     private var base_date = "20210703"  // 발표 일자
     private var base_time = "1400"      // 발표 시각
     var nx = "55"               // 예보지점 X 좌표
     var ny = "127"              // 예보지점 Y 좌표
 
+    private var preview : Preview? = null
+    private var imageCapture: ImageCapture? = null
+    private lateinit var filepath : String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySmarthomeBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        setContentView(view)
-
+        startCamera()
 
         binding.btnWeather.setOnClickListener {
             setWeather(nx, ny)
-
         }
 
+        filepath = File(getMyExternalMediaDirs(), newJpgFileName()).absolutePath
 
-
-        startCamera()
-        binding.cameraCaptureButton.setOnClickListener {
-            takePhoto()
+        binding.imageViewPhoto.setOnClickListener {
+            takePicture(filepath!!)
         }
-        outputDirectory = getOutputDirectory()
-        cameraExecutor = Executors.newSingleThreadExecutor()
-
-        binding.viewFinder.setOnTouchListener { v : View, event : MotionEvent ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    v.performClick()
-                    return@setOnTouchListener true
-                }
-                MotionEvent.ACTION_UP -> {
-// Get the MeteringPointFactory from PreviewView
-                    val factory = binding.viewFinder.meteringPointFactory
-// Create a MeteringPoint from the tap coordinates
-                    val point = factory.createPoint(event.x, event.y)
-// Create a MeteringAction from the MeteringPoint, you can configure it to specify the metering mode
-                    val action = FocusMeteringAction.Builder(point).build()
-// Trigger the focus and metering. The method returns a ListenableFuture since the operation
-// is asynchronous. You can use it get notified when the focus is successful or if it fails.
-                    cameraController?.startFocusAndMetering(action)
-                    v.performClick()
-                    return@setOnTouchListener true
-                }
-                else -> return@setOnTouchListener false
-            }
-        }
-
-
-
-
     }
 
     fun setWeather(nx : String, ny : String) {
@@ -207,50 +173,107 @@ class SmartHome : AppCompatActivity() {
         }
     }
 
-    private fun takePhoto() {
-// Get a stable reference of the modifiable image capture use case
-        val imageCapture = imageCapture ?: return
-// Create time-stamped output file to hold the image
-        val photoFile = File(
-            outputDirectory,
-            newJpgFileName())
+    private fun takePicture(filepath : String) {
+        val photoFile = File(filepath)
 // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        val outputOptions = ImageCapture
+            .OutputFileOptions
+            .Builder(photoFile)
+            .build()
 // Set up image capture listener, which is triggered after photo has
 // been taken
-        imageCapture.takePicture(
+        imageCapture?.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
-                    Log.d("CameraX-Debug", "Photo capture failed: ${exc.message}", exc)
+                    Log.e("CameraX_Debug", "Photo capture failed: ${exc.message}", exc)
                 }
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
-                    val msg = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.d("CameraX-Debug", msg)
+//                    val resultIntent = Intent()
+//                    setResult(Activity.RESULT_OK, resultIntent)
+//                    finish()
+                    val bitmap = BitmapFactory.decodeFile(filepath)
+//                    binding.imageView.setImageBitmap(rotatedBitmap(bitmap))
+
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 70, baos)
+                    val bytes = baos.toByteArray()
+                    val temp = Base64.encodeToString(bytes, Base64.DEFAULT)
+
+                    Log.d("temp", temp.toString())
+
+                    //temp가 Base64
+
+                    val ImgInfo = ImgInfo(temp)
+                    ImgInfo.img = temp
+
+                    userAPIS.postImgImfo(ImgInfo).enqueue(object : Callback<String>{
+                        override fun onResponse(call: Call<String>, response: Response<String>) {
+                            if (response.code() == 210){
+                                toast("0")
+                            }
+                            else if (response.code() == 211){
+                                toast("1")
+                            }
+                            else if (response.code() == 212){
+                                toast("2")
+                            }
+                            else if (response.code() == 213){
+                                toast("3")
+                            }
+                            else if (response.code() == 214){
+                                toast("4")
+                            }
+                            else if (response.code() == 215){
+                                toast("5")
+                            }
+                            else if (response.code() == 216){
+                                toast("6")
+                            }
+                            else if (response.code() == 217){
+                                toast("7")
+                            }
+                            else if (response.code() == 218){
+                                toast("8")
+                            }
+                            else if (response.code() == 219){
+                                toast("9")
+                            }
+                            else {
+                                toast("error")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<String>, t: Throwable) {
+                            errorDialog("ImgPost", t)
+                        }
+
+                    })
+
+
                 }
             })
     }
 
-    // viewFinder 설정 : Preview
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener({
+        cameraProviderFuture.addListener(Runnable {
 // Used to bind the lifecycle of cameras to the lifecycle owner
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 // Preview
             preview = Preview.Builder()
+                .setTargetRotation(windowManager.defaultDisplay.rotation)
                 .build()
                 .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                    it.setSurfaceProvider(binding.preView.surfaceProvider)
                 }
 // ImageCapture
             imageCapture = ImageCapture.Builder()
                 .build()
-// Select back camera as a default
-            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+            val cameraSelector = CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .build()
             try {
 // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
@@ -260,23 +283,58 @@ class SmartHome : AppCompatActivity() {
                     cameraSelector,
                     preview,
                     imageCapture)
-
-                cameraController = camera!!.cameraControl
-                cameraInfo = camera!!.cameraInfo
-
             } catch(exc: Exception) {
-                Log.d("CameraX-Debug", "Use case binding failed", exc)
+                Log.e("CameraX_Debug", "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
+    private fun getOrientationOfImage(filepath : String): Int? {
+        var exif : ExifInterface? = null
+        var result: Int? = null
+        try{
+            exif = ExifInterface(filepath)
+        }catch (e: Exception){
+            e.printStackTrace()
+            return -1
+        }
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)
+        if(orientation != -1){
+            result = when(orientation){
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+        }
+        return result
+    }
 
-    private fun newJpgFileName() : String {
+    private fun rotatedBitmap(bitmap: Bitmap?): Bitmap? {
+        val matrix = Matrix()
+        var resultBitmap : Bitmap? = null
+        when(getOrientationOfImage(filepath)){
+            0 -> matrix.setRotate(0F)
+            90 -> matrix.setRotate(90F)
+            180 -> matrix.setRotate(180F)
+            270 -> matrix.setRotate(270F)
+        }
+        resultBitmap = try{
+            bitmap?.let { Bitmap.createBitmap(it, 0, 0, bitmap.width, bitmap.height, matrix, true) }
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+        return resultBitmap
+    }
+
+    private fun newJpgFileName(): String {
         val sdf = SimpleDateFormat("yyyyMMdd_HHmmss")
         val filename = sdf.format(System.currentTimeMillis())
         return "${filename}.jpg"
     }
-    private fun getOutputDirectory(): File {
+
+    private fun getMyExternalMediaDirs(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
             File(it, resources.getString(R.string.app_name)).apply {
                 mkdirs()
@@ -285,8 +343,15 @@ class SmartHome : AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir
         else filesDir
     }
-    override fun onDestroy() {
-        super.onDestroy()
-        cameraExecutor.shutdown()
+
+    fun errorDialog(msg: String, t: Throwable){
+        val dialog = AlertDialog.Builder(this)
+        Log.e(msg, t.message.toString())
+        dialog.setTitle("$msg 에러")
+        dialog.setMessage("호출실패했습니다.")
+        dialog.show()
+    }
+    fun toast(message: String){
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

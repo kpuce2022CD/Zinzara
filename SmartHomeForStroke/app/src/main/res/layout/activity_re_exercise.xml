@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="20dp">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -17,15 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/img_finger"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,28 +24,6 @@
             android:text="1/5"
             android:textSize="20sp"
             android:textStyle="bold"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_quest"
-            android:text="1/5"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
-
-        <EditText
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/et_correct"
-            android:layout_gravity="center"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="보내기"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:id="@+id/btn_send"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -63,6 +32,23 @@
             android:textSize="40dp"
             android:id="@+id/tv_score"
             android:text="0"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/preView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+
 
 
     </LinearLayout>
