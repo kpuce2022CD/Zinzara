@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.smarthomeforstroke.databinding.ActivityRehabilitationBinding
-import com.example.smarthomeforstroke.databinding.ActivitySmarthomeBinding
 
 
 class Rehabilitation  : AppCompatActivity() {
@@ -18,16 +17,13 @@ class Rehabilitation  : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnRemedialExercise.setOnClickListener {
-            val intent = Intent(this, ReLanguage::class.java)
-            startActivity(intent)
-        }
-        binding.btnRemedialLanguage.setOnClickListener {
             val intent = Intent(this, ReExercise::class.java)
             startActivity(intent)
         }
-
-
-
+        binding.btnRemedialLanguage.setOnClickListener {
+            val intent = Intent(this, ReLanguage::class.java)
+            startActivity(intent)
+        }
 
     }
 

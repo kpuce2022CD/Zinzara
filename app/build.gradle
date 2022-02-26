@@ -59,6 +59,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
+    implementation 'gun0912.ted:tedpermission:2.2.3'
     // RestAPI
     implementation group: 'com.squareup.retrofit2', name: 'retrofit', version: 'latest.integration'
     implementation group: 'com.squareup.retrofit2', name: 'converter-gson', version: 'latest.integration'

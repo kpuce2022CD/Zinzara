@@ -1,176 +1,173 @@
 package com.example.smarthomeforstroke
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.camera.core.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import com.example.smarthomeforstroke.databinding.ActivitySmarthomeBinding
+import com.example.smarthomeforstroke.databinding.ActivityReExerciseBinding
+import com.example.smarthomeforstroke.databinding.ActivityReLanguageBinding
 import com.example.smarthomeforstroke.sign.UserAPIS
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import org.w3c.dom.Text
 import retrofit2.Call
+import java.util.*
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.jar.Manifest
+import kotlin.collections.ArrayList
 
 
-val gson : Gson = GsonBuilder()
-    .setLenient()
-    .create()
-
-// retrofit을 사용하기 위한 빌더 생성
-private val retrofit = Retrofit.Builder()
-    .baseUrl("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/")
-    .addConverterFactory(GsonConverterFactory.create(gson))
-    .build()
-
-object ApiObject {
-    val retrofitService: WeatherInterface by lazy {
-        retrofit.create(WeatherInterface::class.java)
-    }
-}
-
-
-class SmartHome : AppCompatActivity() {
+class ReExercise : AppCompatActivity() {
 
     var userAPIS = UserAPIS.create()
-    private lateinit var binding : ActivitySmarthomeBinding
+    private var mBinding: ActivityReExerciseBinding? = null
+    private val binding get() = mBinding!!
 
-    private var base_date = "20210703"  // 발표 일자
-    private var base_time = "1400"      // 발표 시각
-    var nx = "55"               // 예보지점 X 좌표
-    var ny = "127"              // 예보지점 Y 좌표
+    val PREFERENCE = "com.example.smarthomeforstroke"
 
     private var preview : Preview? = null
     private var imageCapture: ImageCapture? = null
     private lateinit var filepath : String
 
+    var answer = arrayOf("0")
+    var question = arrayOf("0")
+    var num : Int = 0
+    var cnt = 0
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySmarthomeBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        mBinding = ActivityReExerciseBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         startCamera()
-
-        binding.btnWeather.setOnClickListener {
-            setWeather(nx, ny)
-        }
 
         filepath = File(getMyExternalMediaDirs(), newJpgFileName()).absolutePath
 
-        binding.imageViewPhoto.setOnClickListener {
-            takePicture(filepath!!)
-        }
-    }
+        var pref = getSharedPreferences(PREFERENCE, MODE_PRIVATE)
+        var id = pref.getString("user_id", "")
+        var pw = pref.getString("pw", "")
 
-    fun setWeather(nx : String, ny : String) {
-        // 준비 단계 : base_date(발표 일자), base_time(발표 시각)
-        // 현재 날짜, 시간 정보 가져오기
-        setTime()
+        Thread(Runnable {
+            val img = findViewById<ImageView>(R.id.img_finger)
+            val tvNum = findViewById<TextView>(R.id.tv_num)
+            val score = findViewById<TextView>(R.id.tv_score)
+            val intent = Intent(this, Rehabilitation::class.java)
 
-        // 날씨 정보 가져오기
-        // (응답 자료 형식-"JSON", 한 페이지 결과 수 = 10, 페이지 번호 = 1, 발표 날싸, 발표 시각, 예보지점 좌표)
-        val call = ApiObject.retrofitService.GetWeather("JSON",60, 1, base_date, base_time, nx, ny)
-
-        // 비동기적으로 실행하기
-        call.enqueue(object : retrofit2.Callback<WEATHER> {
-            // 응답 성공 시
-            override fun onResponse(call: Call<WEATHER>, response: Response<WEATHER>) {
-                if (response.body()!!.response.header.resultCode == 0){
-                    Log.d("에러", response.toString())
-                    Log.d("에러", response.body().toString())
-
-                    // 날씨 정보 가져오기
-                    var it: List<ITEM> = response.body()!!.response.body.items.item
-
-                    var rainRatio = ""      // 강수 확률
-                    var rainType = ""       // 강수 형태
-                    var humidity = ""       // 습도
-                    var sky = ""            // 하능 상태
-                    var temp = ""           // 기온
-                    for (i in 0 until response.body()!!.response.body.totalCount) {
-                        when(it[i].category) {
-                            "T1H" -> temp = it[i].fcstValue         // 기온
-                            "RN1" -> rainRatio = it[i].fcstValue
-                            "SKY" -> sky = it[i].fcstValue          // 하늘 상태
-                            "REH" -> humidity = it[i].fcstValue     // 습도
-                            "PTY" -> rainType = it[i].fcstValue     // 강수 형태
-                            else -> continue
-                        }
+            for( i in 1..5) {
+                val random = Random()
+                num = random.nextInt(9)
+                question.plus(num.toString())
+                runOnUiThread {
+                    tvNum.text = "$i/5"
+                }
+                when (num) {
+                    0 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger0)
                     }
-                    // 강수 형태
-                    var result1 = ""
-                    when(rainType) {
-                        "0" -> result1 = "없음"
-                        "1" -> result1 = "비"
-                        "2" -> result1 = "비/눈"
-                        "3" -> result1 = "눈"
-                        "5" -> result1 = "빗방울"
-                        "6" -> result1 = "빗방울/눈날림"
-                        "7" -> result1 = "눈날림"
-                        else -> "오류"
+                    1 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger1)
                     }
-                    // 하늘 상태
-                    var result2 = ""
-                    when(sky) {
-                        "1" -> result2 = "맑음"
-                        "3" -> result2 = "구름 많음"
-                        "4" -> result2 = "흐림"
-                        else -> "오류"
+                    2 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger2)
                     }
-                    binding.btnWeather.text = it[1].fcstValue
+                    3 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger3)
+                    }
+                    4 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger4)
+                    }
+                    5 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger5)
+                    }
+                    6 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger6)
+                    }
+                    7 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger7)
+                    }
+                    8 -> runOnUiThread {
+                        img.background =
+                            ContextCompat.getDrawable(this@ReExercise, R.drawable.finger8)
+                    }
+                }
+                Thread.sleep(5000)
 
-                    val dialog = AlertDialog.Builder(this@SmartHome)
-                    dialog.setTitle("오늘의 날씨")
-                    dialog.setMessage("강수 확률 : $rainRatio%, $result1, 습도 : $humidity%, $result2, 온도 : $temp°")
-                    dialog.show()
+                takePicture(filepath!!)
+//
+//                if (answer.equals(num.toString())){
+//                    cnt += 1
+//                    runOnUiThread{
+//                        score.text = cnt.toString()
+//                    }
+//                }
 
-                    Toast.makeText(applicationContext, base_date + ", " + base_time + "의 날씨 정보입니다.", Toast.LENGTH_SHORT).show()
+            }
+            Thread.sleep(20000)
 
+
+            for (i in 1..5){
+                if (answer[i] == question[i]){
+                    cnt++
                 }
             }
 
-            // 응답 실패 시
-            override fun onFailure(call: Call<WEATHER>, t: Throwable) {
-                Log.d("api fail", t.message.toString())
-            }
-        })
+            val reExerciseSend = ReExerciseSend(id.toString(), pw.toString(), cnt, "")
+            userAPIS.postReExercise(reExerciseSend).enqueue(object : Callback<ReExerciseInfo>{
+                override fun onResponse(
+                    call: Call<ReExerciseInfo>,
+                    response: Response<ReExerciseInfo>
+                ) {
+                    var builder = AlertDialog.Builder(this@ReExercise)
+                    builder.setTitle("점수 저장 되었습니다")
+                    builder.setMessage(cnt.toString() + "점")
+                    runOnUiThread{
+                        builder.show()
+                    }
+                    startActivity(intent)
+                    finish()
+                }
+
+                override fun onFailure(call: Call<ReExerciseInfo>, t: Throwable) {
+                    errorDialog("점수저장", t)
+                }
+
+            })
+
+        }).start()
+
     }
-
-    private fun setTime(){
-        val cal = Calendar.getInstance()
-        base_date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time) // 현재 날짜
-        val time = SimpleDateFormat("HH", Locale.getDefault()).format(cal.time) // 현재 시각
-        // API 가져오기 적당하게 변환
-
-        if (time == "00"){
-            cal.add(Calendar.DATE, -1).toString()
-            base_time = "2300"
-            base_date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time)
-        }
-        else{
-            base_time = time + "00"
-        }
+    fun errorDialog(msg: String, t: Throwable){
+        val dialog = AlertDialog.Builder(this)
+        Log.e(msg, t.message.toString())
+        dialog.setTitle("$msg 에러")
+        dialog.setMessage("호출실패했습니다.")
+        dialog.show()
     }
 
     private fun takePicture(filepath : String) {
@@ -179,7 +176,7 @@ class SmartHome : AppCompatActivity() {
         val outputOptions = ImageCapture
             .OutputFileOptions
             .Builder(photoFile)
-            .build()
+            .build()s
 // Set up image capture listener, which is triggered after photo has
 // been taken
         imageCapture?.takePicture(
@@ -212,33 +209,43 @@ class SmartHome : AppCompatActivity() {
                         override fun onResponse(call: Call<String>, response: Response<String>) {
                             if (response.code() == 210){
                                 toast("0")
+                                answer.plus("0")
                             }
                             else if (response.code() == 211){
                                 toast("1")
+                                answer.plus("1")
                             }
                             else if (response.code() == 212){
                                 toast("2")
+                                answer.plus("2")
                             }
                             else if (response.code() == 213){
                                 toast("3")
+                                answer.plus("3")
                             }
                             else if (response.code() == 214){
                                 toast("4")
+                                answer.plus("4")
                             }
                             else if (response.code() == 215){
                                 toast("5")
+                                answer.plus("5")
                             }
                             else if (response.code() == 216){
                                 toast("6")
+                                answer.plus("6")
                             }
                             else if (response.code() == 217){
                                 toast("7")
+                                answer.plus("7")
                             }
                             else if (response.code() == 218){
                                 toast("8")
+                                answer.plus("8")
                             }
                             else if (response.code() == 219){
                                 toast("9")
+                                answer.plus("9")
                             }
                             else {
                                 toast("error")
@@ -344,13 +351,7 @@ class SmartHome : AppCompatActivity() {
         else filesDir
     }
 
-    fun errorDialog(msg: String, t: Throwable){
-        val dialog = AlertDialog.Builder(this)
-        Log.e(msg, t.message.toString())
-        dialog.setTitle("$msg 에러")
-        dialog.setMessage("호출실패했습니다.")
-        dialog.show()
-    }
+
     fun toast(message: String){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
