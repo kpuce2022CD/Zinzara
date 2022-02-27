@@ -64,4 +64,5 @@ dependencies {
     implementation group: 'com.squareup.retrofit2', name: 'retrofit', version: 'latest.integration'
     implementation group: 'com.squareup.retrofit2', name: 'converter-gson', version: 'latest.integration'
     implementation group: 'com.squareup.retrofit2', name: 'converter-scalars', version: 'latest.integration'
+    implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.5.31"
 }

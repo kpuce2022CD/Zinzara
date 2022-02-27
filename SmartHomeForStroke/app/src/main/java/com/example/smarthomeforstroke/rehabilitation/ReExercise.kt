@@ -46,10 +46,11 @@ class ReExercise : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var filepath : String
 
-    var answer = arrayOf("0")
-    var question = arrayOf("0")
+
+
+    var answer = ArrayList<String>()
+    var question = ArrayList<String>()
     var num : Int = 0
-    var cnt = 0
 
 
 
@@ -68,13 +69,14 @@ class ReExercise : AppCompatActivity() {
         Thread(Runnable {
             val img = findViewById<ImageView>(R.id.img_finger)
             val tvNum = findViewById<TextView>(R.id.tv_num)
-            val score = findViewById<TextView>(R.id.tv_score)
             val intent = Intent(this, Rehabilitation::class.java)
+            var cnt = 0
+
 
             for( i in 1..5) {
                 val random = Random()
                 num = random.nextInt(9)
-                question.plus(num.toString())
+                question.add(num.toString())
                 runOnUiThread {
                     tvNum.text = "$i/5"
                 }
@@ -128,10 +130,9 @@ class ReExercise : AppCompatActivity() {
 //                }
 
             }
-            Thread.sleep(20000)
+            Thread.sleep(5000)
 
-
-            for (i in 1..5){
+            for (i in 0..4){
                 if (answer[i] == question[i]){
                     cnt++
                 }
@@ -209,46 +210,47 @@ class ReExercise : AppCompatActivity() {
                         override fun onResponse(call: Call<String>, response: Response<String>) {
                             if (response.code() == 210){
                                 toast("0")
-                                answer.plus("0")
+                                answer.add("0")
                             }
                             else if (response.code() == 211){
                                 toast("1")
-                                answer.plus("1")
+                                answer.add("1")
                             }
                             else if (response.code() == 212){
                                 toast("2")
-                                answer.plus("2")
+                                answer.add("2")
                             }
                             else if (response.code() == 213){
                                 toast("3")
-                                answer.plus("3")
+                                answer.add("3")
                             }
                             else if (response.code() == 214){
                                 toast("4")
-                                answer.plus("4")
+                                answer.add("4")
                             }
                             else if (response.code() == 215){
                                 toast("5")
-                                answer.plus("5")
+                                answer.add("5")
                             }
                             else if (response.code() == 216){
                                 toast("6")
-                                answer.plus("6")
+                                answer.add("6")
                             }
                             else if (response.code() == 217){
                                 toast("7")
-                                answer.plus("7")
+                                answer.add("7")
                             }
                             else if (response.code() == 218){
                                 toast("8")
-                                answer.plus("8")
+                                answer.add("8")
                             }
                             else if (response.code() == 219){
                                 toast("9")
-                                answer.plus("9")
+                                answer.add("9")
                             }
                             else {
                                 toast("error")
+                                answer.add("error")
                             }
                         }
 

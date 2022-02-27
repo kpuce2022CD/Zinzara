@@ -1,11 +1,9 @@
 
 package com.example.restapi
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.SeekBar
-import androidx.appcompat.app.AlertDialog
 import com.example.restapi.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
@@ -43,7 +41,6 @@ class MainActivity : AppCompatActivity() {
                 groupAPI = GroupAPIS.create(BASE_URL!!)
 
                 getLightsId()
-
             }
 
             override fun onFailure(call: Call<List<ResponseGetIP>>, t: Throwable) {
