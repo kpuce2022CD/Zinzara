@@ -11,11 +11,13 @@
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_launch.xml" value="0.1" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_passwoed.xml" value="0.25364583333333335" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_password.xml" value="0.4" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_re_exercise.xml" value="0.2" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_re_language.xml" value="0.1" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_rehabilitation.xml" value="0.8" />
-        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_in.xml" value="0.25" />
-        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_up.xml" value="0.25364583333333335" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_in.xml" value="0.4" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_up.xml" value="0.4" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_signin.xml" value="0.25364583333333335" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_smarthome.xml" value="0.1" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_user_profile.xml" value="0.25364583333333335" />

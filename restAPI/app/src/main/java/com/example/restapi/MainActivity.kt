@@ -3,7 +3,10 @@ package com.example.restapi
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.RadioButton
 import android.widget.SeekBar
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.example.restapi.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     var idAndIp: List<ResponseGetIP>? = null
     var lightId: String = "1"
     var lightIds: ArrayList<String>? = null
+    var lightNum = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +52,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+
         //전구 선택
+
         binding.rgId.setOnCheckedChangeListener { radioGroup, checkedId ->
             when(checkedId){
                 binding.rbId1.id -> lightId = "1"
@@ -86,6 +92,8 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
+
+
     }
 
     // 전구 상태 보고 On/Off 버튼 바꿔줌
@@ -159,18 +167,32 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+
     fun getLightsId() {
         groupAPI?.requestGetLightsId()?.enqueue(object : Callback<GroupInfo>{
             override fun onResponse(call: Call<GroupInfo>, response: Response<GroupInfo>) {
                 val groupInfo = response.body()
                 lightIds = groupInfo?.lights!!
-                binding.lightId.text = lightIds.toString()
+                binding.lightId.text = lightIds!!.size.toString() + lightIds.toString()
+                lightNum=lightIds!!.size
+                //DisplayRadioButton()
             }
 
             override fun onFailure(call: Call<GroupInfo>, t: Throwable) {
                 errorDialog("GROUP", t)
             }
         })
+    }
+
+    fun DisplayRadioButton() {
+        for (i in 1..lightNum) {
+            var radiogroup = binding.rgId
+            var rdbtn = RadioButton(this)
+            rdbtn.id = i;
+            rdbtn.text = i.toString() + "번 조명";
+            radiogroup.addView(rdbtn);
+        }
     }
 
 

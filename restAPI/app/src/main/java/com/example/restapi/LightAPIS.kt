@@ -35,6 +35,11 @@ interface LightAPIS {
         @Path("id") id: String
     ): Call<Light>
 
+    @DELETE("lights/{id}/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun deleteLight()
+
+
     companion object {
         fun create(url:String): LightAPIS {
             val gson: Gson = GsonBuilder().setLenient().create()
