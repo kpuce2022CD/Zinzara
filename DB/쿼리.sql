@@ -28,3 +28,15 @@ CREATE TABLE `physical_rehabilitation` (
 	INDEX `physical_rehabilitation_user_id_dec6d569` (`user_id`) USING BTREE,
 	CONSTRAINT `physical_rehabilitation_user_id_dec6d569_fk_members_user_id` FOREIGN KEY (`user_id`) REFERENCES `zinzara`.`members` (`user_id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
+
+
+CREATE TABLE `language_rehabilitation` (
+	`language_score` INT(11) NOT NULL,
+	`rehabilitation_time` DATETIME(6) NOT NULL,
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`user_id` VARCHAR(30) NOT NULL COLLATE 'utf8_general_ci',
+	PRIMARY KEY (`idx`) USING BTREE,
+	INDEX `language_rehabilitation_user_id_5eca6228` (`user_id`) USING BTREE,
+	CONSTRAINT `language_rehabilitation_user_id_5eca6228_fk_members_user_id` FOREIGN KEY (`user_id`) REFERENCES `zinzara`.`members` (`user_id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+);
+
