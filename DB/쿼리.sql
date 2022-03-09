@@ -40,3 +40,10 @@ CREATE TABLE `language_rehabilitation` (
 	CONSTRAINT `language_rehabilitation_user_id_5eca6228_fk_members_user_id` FOREIGN KEY (`user_id`) REFERENCES `zinzara`.`members` (`user_id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
+
+CREATE TABLE `gestures_gestures` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`img` LONGTEXT NOT NULL COLLATE 'utf8_general_ci',
+	PRIMARY KEY (`id`) USING BTREE
+);
+
