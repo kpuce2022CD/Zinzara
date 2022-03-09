@@ -8,18 +8,22 @@
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/drawable/ic_baseline_dehaze_24.xml" value="0.19791666666666666" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/drawable/ic_baseline_loop_24.xml" value="0.19791666666666666" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/drawable/ic_launcher_background.xml" value="0.26979166666666665" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_device_manage.xml" value="0.2" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_launch.xml" value="0.1" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_passwoed.xml" value="0.25364583333333335" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_password.xml" value="0.4" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_re_exercise.xml" value="0.2" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_re_language.xml" value="0.1" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_rehabilitation.xml" value="0.8" />
-        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_in.xml" value="0.25" />
-        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_up.xml" value="0.25364583333333335" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_in.xml" value="0.4" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_sign_up.xml" value="0.4" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_signin.xml" value="0.25364583333333335" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_smarthome.xml" value="0.1" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/activity_user_profile.xml" value="0.25364583333333335" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/main_navheader.xml" value="0.176" />
+        <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/layout/recycler_item.xml" value="0.25364583333333335" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/menu/activity_smart_home_drawer.xml" value="0.536" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/menu/navigation_menu.xml" value="0.11388888888888889" />
         <entry key="..\:/RestAPI Android Project/SmartHomeForStroke/app/src/main/res/xml/file_paths.xml" value="0.121875" />

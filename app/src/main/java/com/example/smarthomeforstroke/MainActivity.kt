@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -22,6 +21,8 @@ import com.google.android.material.navigation.NavigationView
 
 
 class MainActivity : AppCompatActivity() {
+
+
 
     private var mBinding: ActivityMainBinding? = null
     private val binding get() = mBinding!!
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         binding.sessionInfo.text = "환영합니다" + id + "님" + pw
 
 
+
         binding.btnCamera.setOnClickListener {
             if(checkPermissions(PERMISSIONS, PERMISSIONS_REQ)){
                 val nextIntent = Intent(this, SmartHome::class.java)
@@ -77,6 +79,8 @@ class MainActivity : AppCompatActivity() {
             when (it.itemId) {
                 R.id.menu_manage_device -> {
                     //startActivity<DeviceManage>()
+                    val intent = Intent(this, DeviceManageActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.logout -> {
@@ -136,6 +140,7 @@ class MainActivity : AppCompatActivity() {
         }
         return true
     }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         for(result in grantResults){
@@ -146,6 +151,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
 }

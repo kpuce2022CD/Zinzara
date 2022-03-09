@@ -1,6 +1,5 @@
-package com.example.smarthomeforstroke.sign
+package com.example.smarthomeforstroke
 
-import com.example.smarthomeforstroke.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import retrofit2.Call
@@ -8,54 +7,49 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.*
-import retrofit2.http.Body
 
-interface UserAPIS {
-    @POST("/login/")
+interface LightAPIS {
+    @GET("lights/")
     @Headers("accept: application/json", "content-type: application/json")
-    fun requestSignIn(
-        @Body jsonparams: SignInInfo
-    ):Call<String>
+    fun requestGetLights(): Call<ResponseGetLightIdList>
 
-    @POST("/members/")
+    @PUT("lights/{id}/state")
     @Headers("accept: application/json", "content-type: application/json")
-    fun requestSignUp(
-        @Body jsonparams: SignUpInfo
-    ):Call<SignUpInfo>
+    fun requestTurnLights(
+        @Path("id") id: String,
+        @Body jsonparams: PutLight
+    ): Call<String>
 
-    @POST("/physical-rehabilitation/")
+
+    @PUT("lights/{id}/state")
     @Headers("accept: application/json", "content-type: application/json")
-    fun postReExercise(
-        @Body jsonparams: ReExerciseSend
-    ):Call<ReExerciseInfo>
+    fun requestLightsBright(
+        @Path("id") id: String,
+        @Body jsonparams: PutBright
+    ): Call<String>
 
-    @GET("/physical-rehabilitation/")
+
+    @GET("lights/{id}/")
     @Headers("accept: application/json", "content-type: application/json")
-    fun getReExercise(
-        @Body jsonparams: UserInfo
-    ):Call<ReExerciseInfo>
+    fun requestLightsState(
+        @Path("id") id: String
+    ): Call<Light>
 
-    @POST("/gestures/")
+    @DELETE("lights/{id}/")
     @Headers("accept: application/json", "content-type: application/json")
-    fun postImgImfo(
-        @Body jsonparams: ImgInfo
-    ):Call<String>
+    fun deleteLight()
 
 
-
-    companion object{
-        private const val ipv4 = "172.30.1.41"
-        private const val port = "8000"
-        fun create(): UserAPIS{
+    companion object {
+        fun create(url:String): LightAPIS {
             val gson: Gson = GsonBuilder().setLenient().create()
-            val BASE_URL = "http://$ipv4:$port"
+            val BASE_URL = "http://$url/api/npdHhwWW9zTQdOl1Vvd49xNWcGsKxmDM224akjbE/"
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build()
-                .create(UserAPIS::class.java)
+                .create(LightAPIS::class.java)
         }
-
     }
 }
