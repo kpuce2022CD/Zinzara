@@ -44,7 +44,7 @@ interface UserAPIS {
 
 
     companion object{
-        private const val ipv4 = "172.30.1.58"
+        private const val ipv4 = "172.30.1.41"
         private const val port = "8000"
         fun create(): UserAPIS{
             val gson: Gson = GsonBuilder().setLenient().create()

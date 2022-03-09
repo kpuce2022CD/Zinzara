@@ -6,6 +6,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
@@ -59,6 +60,23 @@ class SmartHome : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var filepath : String
 
+    private var BASE_URL:String? = null
+    var lightApi: LightAPIS? = null
+    var groupAPI: GroupAPIS? = null
+
+    var light: String? = null
+    var lightLight: Light? = null
+    var lightState: State? = null
+    var philipsHueApi = PhilipsHueAPIS.create()
+    var idAndIp: List<ResponseGetIP>? = null
+    var lightId: String = "1"
+    var lightIds: ArrayList<String>? = null
+    var lightNum = 0
+
+    var lightOnOff : String? = null
+
+    var orderNum = 10
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySmarthomeBinding.inflate(layoutInflater)
@@ -66,15 +84,30 @@ class SmartHome : AppCompatActivity() {
         setContentView(view)
         startCamera()
 
-        binding.btnWeather.setOnClickListener {
-            setWeather(nx, ny)
-        }
-
         filepath = File(getMyExternalMediaDirs(), newJpgFileName()).absolutePath
 
         binding.imageViewPhoto.setOnClickListener {
             takePicture(filepath!!)
         }
+
+        philipsHueApi.requestGetIPAddress().enqueue(object : Callback<List<ResponseGetIP>>{
+            override fun onResponse(call: Call<List<ResponseGetIP>>, response: Response<List<ResponseGetIP>>) {
+                idAndIp = response.body()
+                Log.d("PHILIPS HUE", "id : " + idAndIp?.get(0)?.id)
+                Log.d("PHILIPS HUE", "internalipaddress : " + idAndIp?.get(0)?.internalipaddress)
+                Log.d("PHILIPS HUE", "port : " + idAndIp?.get(0)?.port)
+                BASE_URL = idAndIp?.get(0)?.internalipaddress.toString()
+                lightApi = LightAPIS.create(BASE_URL!!)
+                groupAPI = GroupAPIS.create(BASE_URL!!)
+
+                getLightsId()
+            }
+
+            override fun onFailure(call: Call<List<ResponseGetIP>>, t: Throwable) {
+                Log.e("PHILIPS HUE", t.message.toString())
+            }
+        })
+
     }
 
     fun setWeather(nx : String, ny : String) {
@@ -140,7 +173,6 @@ class SmartHome : AppCompatActivity() {
                     dialog.show()
 
                     Toast.makeText(applicationContext, base_date + ", " + base_time + "의 날씨 정보입니다.", Toast.LENGTH_SHORT).show()
-
                 }
             }
 
@@ -204,8 +236,22 @@ class SmartHome : AppCompatActivity() {
 
                     userAPIS.postImgImfo(ImgInfo).enqueue(object : Callback<String>{
                         override fun onResponse(call: Call<String>, response: Response<String>) {
-                            if (response.code() == 210){
+                            var deviceNum = 210 + lightNum
+                            if(response.code() in 211..deviceNum){
+                                toast((response.code()-210).toString()+"번 기기")
+                                orderNum = response.code()-210
+                            }
+                            else if (response.code() == 210){
                                 toast("0")
+                                lightOnOffState(orderNum.toString())
+                                var handler = Handler()
+                                handler.postDelayed(
+                                    Runnable {
+                                        if (orderNum in 1..deviceNum-210 && lightOnOff == "1" ){
+                                            setlightOnOff(false, orderNum.toString())
+                                        }
+                                    }, 500
+                                )
                             }
                             else if (response.code() == 211){
                                 toast("1")
@@ -221,6 +267,15 @@ class SmartHome : AppCompatActivity() {
                             }
                             else if (response.code() == 215){
                                 toast("5")
+                                lightOnOffState(orderNum.toString())
+                                var handler = Handler()
+                                handler.postDelayed(
+                                    Runnable {
+                                        if (orderNum in 1..deviceNum-210 && lightOnOff == "0"){
+                                            setlightOnOff(true, orderNum.toString())
+                                        }
+                                    }, 500
+                                )
                             }
                             else if (response.code() == 216){
                                 toast("6")
@@ -230,22 +285,20 @@ class SmartHome : AppCompatActivity() {
                             }
                             else if (response.code() == 218){
                                 toast("8")
+                                setWeather(nx, ny)
                             }
                             else if (response.code() == 219){
                                 toast("9")
                             }
                             else {
-                                toast("error")
+                                toast("손가락 모양을 인식할 수 없습니다.")
                             }
                         }
-
                         override fun onFailure(call: Call<String>, t: Throwable) {
                             errorDialog("ImgPost", t)
                         }
 
                     })
-
-
                 }
             })
     }
@@ -336,6 +389,90 @@ class SmartHome : AppCompatActivity() {
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir
         else filesDir
+    }
+
+
+    fun lightOnOffState(lightId:String) {
+        lightApi?.requestLightsState(lightId)?.enqueue(object : Callback<Light>{
+            override fun onResponse(call: Call<Light>, response: Response<Light>) {
+                lightLight = response.body()
+                lightState = lightLight?.state
+                var on:Boolean = lightState!!.on
+                if (on){
+                    lightOnOff = "1"
+                    Log.d("light state", lightOnOff.toString())
+                }
+                else{
+                    lightOnOff = "0"
+                    Log.d("light state", lightOnOff.toString())
+                }
+
+            }
+            override fun onFailure(call: Call<Light>, t: Throwable) {
+                errorDialog("STATE", t)
+            }
+        })
+    }
+
+    fun setlightOnOff(setLight:Boolean, id: String){
+        val data = PutLight(setLight)
+        lightApi?.requestTurnLights(id, data)?.enqueue(object : Callback<String>{
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                light = response.body()
+                Log.d("LIGHT", "state on: " + light?.toString())
+//                binding.tvInfo.text = light?.toString()
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                errorDialog("LIGHT", t)
+            }
+        })
+    }
+
+    fun lightBright(lightId:String){
+        lightApi?.requestLightsState(lightId)?.enqueue(object : Callback<Light>{
+            override fun onResponse(call: Call<Light>, response: Response<Light>) {
+                lightLight = response.body()
+                lightState = lightLight?.state
+//                var bri:Int = lightState!!.bri
+//                binding.seekBar.progress = bri
+            }
+
+            override fun onFailure(call: Call<Light>, t: Throwable) {
+                errorDialog("BRIGHT GET", t)
+            }
+        })
+    }
+
+    fun lightBrightControl(setLight:Int, id:String){
+        val data = PutBright(setLight)
+        lightApi?.requestLightsBright(id, data)?.enqueue(object : Callback<String>{
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                light = response.body()
+
+                Log.d("BRIGHT PUT", "state on: $light")
+//                binding.briInfo.text = light
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                errorDialog("BRIGHT PUT", t)
+            }
+        })
+
+    }
+
+    fun getLightsId() {
+        groupAPI?.requestGetLightsId()?.enqueue(object : Callback<GroupInfo>{
+            override fun onResponse(call: Call<GroupInfo>, response: Response<GroupInfo>) {
+                val groupInfo = response.body()
+                lightIds = groupInfo?.lights!!
+//                binding.lightId.text = lightIds!!.size.toString() + lightIds.toString()
+                lightNum=lightIds!!.size
+            }
+            override fun onFailure(call: Call<GroupInfo>, t: Throwable) {
+                errorDialog("GROUP", t)
+            }
+        })
     }
 
     fun errorDialog(msg: String, t: Throwable){

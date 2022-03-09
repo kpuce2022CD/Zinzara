@@ -185,16 +185,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun DisplayRadioButton() {
-        for (i in 1..lightNum) {
-            var radiogroup = binding.rgId
-            var rdbtn = RadioButton(this)
-            rdbtn.id = i;
-            rdbtn.text = i.toString() + "번 조명";
-            radiogroup.addView(rdbtn);
-        }
-    }
-
 
     fun errorDialog(msg: String, t: Throwable){
         val dialog = AlertDialog.Builder(this@MainActivity)

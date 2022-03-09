@@ -121,13 +121,6 @@ class ReExercise : AppCompatActivity() {
                 Thread.sleep(5000)
 
                 takePicture(filepath!!)
-//
-//                if (answer.equals(num.toString())){
-//                    cnt += 1
-//                    runOnUiThread{
-//                        score.text = cnt.toString()
-//                    }
-//                }
 
             }
             Thread.sleep(5000)
