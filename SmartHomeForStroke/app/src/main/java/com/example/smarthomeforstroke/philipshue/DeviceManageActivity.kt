@@ -5,19 +5,18 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.RecyclerView
-import com.example.smarthomeforstroke.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.smarthomeforstroke.databinding.ActivityDeviceManageBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+class DeviceItem(val devNum : String)
+
 class DeviceManageActivity : AppCompatActivity() {
 
     var groupAPI: GroupAPIS? = null
     private var BASE_URL:String? = null
-
-    lateinit var rvAdapter : RecyclerAdapter
 
     var philipsHueApi = PhilipsHueAPIS.create()
     var idAndIp: List<ResponseGetIP>? = null
@@ -27,12 +26,14 @@ class DeviceManageActivity : AppCompatActivity() {
     private var mBinding: ActivityDeviceManageBinding? = null
     private val binding get() = mBinding!!
 
+    var dataList = arrayListOf<DeviceItem>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityDeviceManageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        var recycler1 = binding.Recycler1
+        var recyclerView = binding.rvList
         var floatingButton = binding.floatingActionButton
 
         philipsHueApi.requestGetIPAddress().enqueue(object : Callback<List<ResponseGetIP>>{
@@ -41,18 +42,21 @@ class DeviceManageActivity : AppCompatActivity() {
                 Log.d("PHILIPS HUE", "id : " + idAndIp?.get(0)?.id)
                 Log.d("PHILIPS HUE", "internalipaddress : " + idAndIp?.get(0)?.internalipaddress)
                 Log.d("PHILIPS HUE", "port : " + idAndIp?.get(0)?.port)
+
                 BASE_URL = idAndIp?.get(0)?.internalipaddress.toString()
                 groupAPI = GroupAPIS.create(BASE_URL!!)
+                getLightsId()
+                Log.d("lightId", lightIds.toString())
+
             }
             override fun onFailure(call: Call<List<ResponseGetIP>>, t: Throwable) {
                 Log.e("PHILIPS HUE", t.message.toString())
             }
         })
-        initRecycler()
+
         floatingButton.setOnClickListener{
 
         }
-
     }
 
     fun getLightsId() {
@@ -79,26 +83,28 @@ class DeviceManageActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        initRecycler()  // 화면 다시 불러왔을때도 일정 불러오기
+        var handler = Handler()
+        handler.postDelayed(
+            Runnable {
+                initRecycler()
+            },1000)
+        // 화면 다시 불러왔을때도 일정 불러오기
         super.onResume()
     }
 
     private fun initRecycler(){  // 리싸이클러뷰 불러오기 함수
-        var recyTodo = findViewById<RecyclerView>(R.id.Recycler1)
-        rvAdapter = RecyclerAdapter(this)
-        recyTodo.adapter = rvAdapter
+        var recyclerView = binding.rvList
+        val lm = LinearLayoutManager(this)
+        recyclerView.layoutManager = lm
+        recyclerView.setHasFixedSize(true)
+        Log.d("lightId", lightIds.toString())
 
-        getLightsId()
-
-        var handler = Handler()
-        handler.postDelayed(
-                Runnable {
-                    Log.d("data in handler", lightIds.toString())
-
-                    rvAdapter.datas = lightIds!!
-                    rvAdapter.notifyDataSetChanged()
-            },500
-        )
+        for(i in lightIds?.size!!-1 downTo 0){
+            dataList.add(DeviceItem(lightIds!![i]))
+            Log.d("lightId", lightIds!![i])
+        }
+        val rvAdapter = RecyclerAdapter(this, dataList)
+        recyclerView.adapter = rvAdapter
     }
 }
 
