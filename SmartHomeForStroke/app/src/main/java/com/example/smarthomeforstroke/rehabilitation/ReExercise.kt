@@ -46,13 +46,9 @@ class ReExercise : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var filepath : String
 
-
-
     var answer = ArrayList<String>()
     var question = ArrayList<String>()
     var num : Int = 0
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,8 +119,13 @@ class ReExercise : AppCompatActivity() {
                 takePicture(filepath!!)
 
             }
-            Thread.sleep(5000)
+            var builder = AlertDialog.Builder(this@ReExercise)
+            builder.setTitle("점수를 저장합니다.")
+            runOnUiThread{
+                builder.show()
+            }
 
+            Thread.sleep(5000)
             for (i in 0..4){
                 if (answer[i] == question[i]){
                     cnt++

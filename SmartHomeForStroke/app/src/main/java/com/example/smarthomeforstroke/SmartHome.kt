@@ -1,18 +1,27 @@
 package com.example.smarthomeforstroke
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.smarthomeforstroke.databinding.ActivitySmarthomeBinding
 import com.example.smarthomeforstroke.sign.UserAPIS
@@ -51,6 +60,9 @@ class SmartHome : AppCompatActivity() {
     var userAPIS = UserAPIS.create()
     private lateinit var binding : ActivitySmarthomeBinding
 
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var recognitionListener: RecognitionListener
+
     private var base_date = "20210703"  // 발표 일자
     private var base_time = "1400"      // 발표 시각
     var nx = "55"               // 예보지점 X 좌표
@@ -63,32 +75,40 @@ class SmartHome : AppCompatActivity() {
     private var BASE_URL:String? = null
     var lightApi: LightAPIS? = null
     var groupAPI: GroupAPIS? = null
-
     var light: String? = null
     var lightLight: Light? = null
     var lightState: State? = null
     var philipsHueApi = PhilipsHueAPIS.create()
     var idAndIp: List<ResponseGetIP>? = null
-    var lightId: String = "1"
     var lightIds: ArrayList<String>? = null
     var lightNum = 0
-
     var lightOnOff : String? = null
-
     var orderNum = 10
+
+    private var tts : TextToSpeech? = null
+
+    private val PERMISSIONS = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
+    private val PERMISSIONS_REQ = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySmarthomeBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
         startCamera()
-
+        requestPermission()
+        checkPermissions(PERMISSIONS, PERMISSIONS_REQ)
+        setListener()
+        var intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, packageName)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
         filepath = File(getMyExternalMediaDirs(), newJpgFileName()).absolutePath
-
-        binding.imageViewPhoto.setOnClickListener {
-            takePicture(filepath!!)
-        }
 
         philipsHueApi.requestGetIPAddress().enqueue(object : Callback<List<ResponseGetIP>>{
             override fun onResponse(call: Call<List<ResponseGetIP>>, response: Response<List<ResponseGetIP>>) {
@@ -107,6 +127,24 @@ class SmartHome : AppCompatActivity() {
                 Log.e("PHILIPS HUE", t.message.toString())
             }
         })
+
+        // TTS를 생성하고 OnInitListener로 초기화 한다.
+        tts = TextToSpeech(this) { status ->
+            if (status != TextToSpeech.ERROR) {
+                // 언어를 선택한다.
+                tts!!.language = Locale.KOREAN
+            }
+        }
+
+        binding.imageViewPhoto.setOnClickListener {
+            takePicture(filepath!!)
+        }
+
+        binding.btnMic.setOnClickListener {
+            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+            speechRecognizer.setRecognitionListener(recognitionListener)
+            speechRecognizer.startListening(intent)
+        }
 
     }
 
@@ -165,14 +203,13 @@ class SmartHome : AppCompatActivity() {
                         "4" -> result2 = "흐림"
                         else -> "오류"
                     }
-                    binding.btnWeather.text = it[1].fcstValue
-
                     val dialog = AlertDialog.Builder(this@SmartHome)
                     dialog.setTitle("오늘의 날씨")
                     dialog.setMessage("강수 확률 : $rainRatio%, $result1, 습도 : $humidity%, $result2, 온도 : $temp°")
                     dialog.show()
-
-                    Toast.makeText(applicationContext, base_date + ", " + base_time + "의 날씨 정보입니다.", Toast.LENGTH_SHORT).show()
+                    val weather_info = "강수 확률은 $rainRatio 퍼센트, $result1, 습도는 $humidity%, $result2, 온도는 $temp 도 입니다."
+//                    Toast.makeText(applicationContext, base_date + ", " + base_time + "의 날씨 정보입니다.", Toast.LENGTH_SHORT).show()
+                    tts!!.speak(weather_info, TextToSpeech.QUEUE_FLUSH, null)
                 }
             }
 
@@ -249,6 +286,8 @@ class SmartHome : AppCompatActivity() {
                                     Runnable {
                                         if (orderNum in 1..deviceNum-210 && lightOnOff == "1" ){
                                             setlightOnOff(false, orderNum.toString())
+                                            val light_tts = "$orderNum 번 조명이 꺼집니다."
+                                            tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
                                         }
                                     }, 500
                                 )
@@ -273,6 +312,8 @@ class SmartHome : AppCompatActivity() {
                                     Runnable {
                                         if (orderNum in 1..deviceNum-210 && lightOnOff == "0"){
                                             setlightOnOff(true, orderNum.toString())
+                                            val light_tts = "$orderNum 번 조명이 켜집니다."
+                                            tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
                                         }
                                     }, 500
                                 )
@@ -453,12 +494,10 @@ class SmartHome : AppCompatActivity() {
                 Log.d("BRIGHT PUT", "state on: $light")
 //                binding.briInfo.text = light
             }
-
             override fun onFailure(call: Call<String>, t: Throwable) {
                 errorDialog("BRIGHT PUT", t)
             }
         })
-
     }
 
     fun getLightsId() {
@@ -475,14 +514,168 @@ class SmartHome : AppCompatActivity() {
         })
     }
 
+
+    private fun setListener() {
+        recognitionListener = object: RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                Toast.makeText(applicationContext, "음성인식을 시작합니다.", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onBeginningOfSpeech() { }
+            override fun onRmsChanged(rmsdB: Float) { }
+            override fun onBufferReceived(buffer: ByteArray?) { }
+            override fun onEndOfSpeech() { }
+            override fun onError(error: Int) {
+                var message: String
+                when (error) {
+                    SpeechRecognizer.ERROR_AUDIO -> message = "오디오 에러"
+                    SpeechRecognizer.ERROR_CLIENT -> message = "클라이언트 에러"
+                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> message = "퍼미션 없음"
+                    SpeechRecognizer.ERROR_NETWORK -> message = "네트워크 에러"
+                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> message = "네트워크 타임아웃"
+                    SpeechRecognizer.ERROR_NO_MATCH -> message = "찾을 수 없음"
+                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> message = "RECOGNIZER가 바쁨"
+                    SpeechRecognizer.ERROR_SERVER -> message = "서버가 이상함"
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> message = "말하는 시간초과"
+                    else -> message = "알 수 없는 오류"
+                }
+                Toast.makeText(applicationContext, "에러 발생 $message", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onResults(results: Bundle?) {
+                var matches: ArrayList<String> = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) as ArrayList<String>
+
+//                for (i in 0 until matches.size) {
+//                    binding.tvResult.text = matches[i]
+//                }
+                if (matches.contains("날")&&matches.contains("씨")||matches.contains("날씨")){
+                    Toast.makeText(applicationContext, "날씨", Toast.LENGTH_SHORT).show()
+                    setWeather(nx, ny)
+                }
+                else if (matches.contains("일번 켜 줘")||matches.contains("1번 켜줘")||matches.contains("1번 켜 줘")||matches.contains("일번 켜줘")
+                    ||matches.contains("일번켜줘")||matches.contains("1번켜줘")||matches.contains("1번켜")
+                    ||matches.contains("일번켜")||matches.contains("1번 켜")||matches.contains("일번 켜")
+                    ||matches.contains("1번 조명 켜")||matches.contains("일번 조명 켜")||matches.contains("1번 조명 켜 줘")||matches.contains("일번 조명 켜 줘")
+                    ||matches.contains("1번 불 켜")||matches.contains("일번 불 켜")||matches.contains("1번 불 켜 줘")||matches.contains("일번 불 켜 줘")){
+                        Toast.makeText(applicationContext, "1번 켬", Toast.LENGTH_SHORT).show()
+
+                        lightOnOffState("1")
+                        var handler = Handler()
+                        handler.postDelayed(
+                            Runnable {
+                                if (lightOnOff == "0"){
+                                    setlightOnOff(true, "1")
+                                    val light_tts = "1번 조명이 켜집니다."
+                                    tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
+                                }
+                                     }, 500
+                        )
+                }
+                else if (matches.contains("일번 꺼 줘")||matches.contains("1번 꺼줘")||matches.contains("1번 꺼 줘")||matches.contains("일번 꺼줘")
+                    ||matches.contains("일번꺼줘")||matches.contains("1번꺼줘")||matches.contains("1번꺼")
+                    ||matches.contains("일번꺼")||matches.contains("1번 꺼")||matches.contains("일번 꺼")
+                    ||matches.contains("1번 조명 꺼")||matches.contains("일번 조명 꺼")||matches.contains("1번 조명 꺼 줘")||matches.contains("일번 조명 꺼 줘")
+                    ||matches.contains("1번 불 꺼")||matches.contains("일번 불 꺼")||matches.contains("1번 불 꺼 줘")||matches.contains("일번 불 꺼 줘")){
+                    Toast.makeText(applicationContext, "1번 끔", Toast.LENGTH_SHORT).show()
+
+                    lightOnOffState("1")
+                    var handler = Handler()
+                    handler.postDelayed(
+                        Runnable {
+                            if (lightOnOff == "1"){
+                                setlightOnOff(false, "1")
+                                val light_tts = "1번 조명이 꺼집니다."
+                                tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
+                            }
+                        }, 500
+                    )
+                }
+                else if (matches.contains("이번 켜 줘")||matches.contains("2번 켜줘")||matches.contains("2번 켜 줘")||matches.contains("이번 켜줘")
+                    ||matches.contains("이번켜줘")||matches.contains("2번켜줘")||matches.contains("2번켜")
+                    ||matches.contains("이번켜")||matches.contains("2번 켜")||matches.contains("일번 켜")
+                    ||matches.contains("2번 조명 켜")||matches.contains("이번 조명 켜")||matches.contains("2번 조명 켜 줘")||matches.contains("이번 조명 켜 줘")
+                    ||matches.contains("2번 불 켜")||matches.contains("이번 불 켜")||matches.contains("2번 불 켜 줘")||matches.contains("이번 불 켜 줘")){
+                    Toast.makeText(applicationContext, "2번 켬", Toast.LENGTH_SHORT).show()
+                    lightOnOffState("2")
+                    var handler = Handler()
+                    handler.postDelayed(
+                        Runnable {
+                            if (lightOnOff == "0"){
+                                setlightOnOff(true, "2")
+                                val light_tts = "2번 조명이 켜집니다."
+                                tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
+                            }
+                        }, 500
+                    )
+                }
+                else if (matches.contains("이번 꺼 줘")||matches.contains("2번 꺼줘")||matches.contains("2번 꺼 줘")||matches.contains("이번 꺼줘")
+                    ||matches.contains("이번꺼줘")||matches.contains("2번꺼줘")||matches.contains("2번꺼")
+                    ||matches.contains("이번꺼")||matches.contains("2번 꺼")||matches.contains("일번 꺼")
+                    ||matches.contains("2번 조명 꺼")||matches.contains("이번 조명 꺼")||matches.contains("2번 조명 꺼 줘")||matches.contains("이번 조명 꺼 줘")
+                    ||matches.contains("2번 불 꺼")||matches.contains("이번 불 꺼")||matches.contains("2번 불 꺼 줘")||matches.contains("이번 불 꺼 줘")){
+                    Toast.makeText(applicationContext, "2번 꺼", Toast.LENGTH_SHORT).show()
+
+                    lightOnOffState("2")
+                    var handler = Handler()
+                    handler.postDelayed(
+                        Runnable {
+                            if (lightOnOff == "1"){
+                                setlightOnOff(false, "2")
+                                val light_tts = "2번 조명이 꺼집니다."
+                                tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
+                            }
+                        }, 500
+                    )
+                }
+            }
+            override fun onPartialResults(partialResults: Bundle?) { }
+            override fun onEvent(eventType: Int, params: Bundle?) { }
+        }
+    }
+
+    private fun checkPermissions(permissions: Array<String>, permissionsRequest: Int): Boolean {
+        val permissionList : MutableList<String> = mutableListOf()
+        for(permission in permissions){
+            val result = ContextCompat.checkSelfPermission(this, permission)
+            if(result != PackageManager.PERMISSION_GRANTED){
+                permissionList.add(permission)
+            }
+        }
+        if(permissionList.isNotEmpty()){
+            ActivityCompat.requestPermissions(this, permissionList.toTypedArray(), permissionsRequest)
+            return false
+        }
+        return true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        for(result in grantResults){
+            if(result != PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "권한 승인 부탁드립니다.", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+        }
+    }
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.RECORD_AUDIO), 0)
+        }
+    }
+
     fun errorDialog(msg: String, t: Throwable){
-        val dialog = AlertDialog.Builder(this)
-        Log.e(msg, t.message.toString())
-        dialog.setTitle("$msg 에러")
-        dialog.setMessage("호출실패했습니다.")
-        dialog.show()
+            val dialog = AlertDialog.Builder(this)
+            Log.e(msg, t.message.toString())
+            dialog.setTitle("$msg 에러")
+            dialog.setMessage("호출실패했습니다.")
+            dialog.show()
     }
     fun toast(message: String){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
+
 }

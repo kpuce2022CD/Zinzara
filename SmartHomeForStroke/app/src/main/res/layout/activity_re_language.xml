@@ -6,47 +6,57 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btn_stt_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="588dp"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+
 
     <TextView
+        android:id="@+id/relanguage_question"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/btn_stt_start"
+        android:text="병아리"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/relanguage_answer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="100dp"
-        android:textSize="20sp"
-        android:id="@+id/relanguage_question"
-        android:text="병아리"
-        ></TextView>
+        app:layout_constraintTop_toTopOf="parent"></TextView>
 
-    <EditText
+    <TextView
         android:id="@+id/relanguage_answer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
+        android:text="답변이용"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_submit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/relanguage_question"
-        android:layout_marginTop="100dp"/>
+        app:layout_constraintTop_toBottomOf="@id/relanguage_question"/>
 
-    <TextView
+    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintStart_toEndOf="@id/relanguage_answer"
+        app:layout_constraintBaseline_toBaselineOf="@id/relanguage_answer"
+        android:id="@+id/btn_again"
+        android:background="@drawable/ic_baseline_restart_alt_24"/>
+
+    <Button
+        android:id="@+id/btn_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="제출하기"
+        app:layout_constraintBottom_toTopOf="@+id/btn_stt_start"
         app:layout_constraintTop_toBottomOf="@id/relanguage_answer"
-        android:layout_marginTop="20dp"
-        android:textSize="200dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_stt_start"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/ic_baseline_mic_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_submit"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
