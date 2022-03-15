@@ -15,7 +15,8 @@
 
 #### 시스템 수행 시나리오
 
-![system_scenario](C:\Users\User\Desktop\system_scenario.png)
+<img width="1019" alt="system_scenario" src="https://user-images.githubusercontent.com/98944656/158361608-0f6fcfc6-57fd-42ac-a560-af559123c90e.png">
+
 
 <br>
 
