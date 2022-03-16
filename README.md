@@ -15,7 +15,8 @@
 
 #### 시스템 수행 시나리오
 
-<img width="975" alt="system_scenario" src="https://user-images.githubusercontent.com/98944656/153368552-14bfecfe-94a9-40bf-967c-0cd3e313e7d9.png">
+<img width="1019" alt="system_scenario" src="https://user-images.githubusercontent.com/98944656/158361608-0f6fcfc6-57fd-42ac-a560-af559123c90e.png">
+
 
 <br>
 
