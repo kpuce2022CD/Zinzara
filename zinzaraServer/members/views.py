@@ -14,15 +14,31 @@ from .serializers import MembersSerializer
 def hello(request):
     return HttpResponse("Zinzara Server")
 
+# data = JSONParser().parse(request)
+#         search_id = data["user_id"]
+#         obj = Members.objects.get(user_id=search_id)
+#
+#         if data["pw"] == obj.pw:
+#             return HttpResponse(status=200)
+#         else:
+#             return HttpResponse(status=400)
+
+
 @csrf_exempt
 def members(request):
     if request.method == "POST":   # 사용자 추가하기
         data = JSONParser().parse(request)
-        serializer = MembersSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=210)
-        return JsonResponse(serializer.errors, status=410)
+        user_id = data["user_id"]
+        pw = data["pw"]
+        if 4 < len(user_id) < 10 and 4 < len(pw) < 10:
+            serializer = MembersSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse(serializer.data, status=210)
+            return JsonResponse(serializer.errors, status=410)
+        else:
+            return HttpResponse(status=411)   # id, pw 길이 안맞으면 411 리턴
+
 
 
 @csrf_exempt
