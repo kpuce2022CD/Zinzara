@@ -23,6 +23,10 @@
 #### 시스템 구성도
 <img width="1020" alt="system_config" src="https://user-images.githubusercontent.com/98944656/153368563-c473d3c3-41fb-4485-bdb2-9a68e1405fb5.png">
 
+#### UI설계
+![UI설계](https://user-images.githubusercontent.com/87293842/159208641-f2feb13a-31c7-4c11-826d-c2e026f27239.JPG)
+
+
 <br>
 
 #### 기술 스택
