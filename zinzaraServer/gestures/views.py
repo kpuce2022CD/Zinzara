@@ -94,6 +94,9 @@ def gestures(request):
                 float(find_distance(int(hand_landmarks.landmark[17].x * 255), int(hand_landmarks.landmark[17].y * 255),
                                     int(hand_landmarks.landmark[20].x * 255), int(hand_landmarks.landmark[20].y * 255)))))
 
+            light_control = float(find_distance(int(hand_landmarks.landmark[4].x * 255), int(hand_landmarks.landmark[4].y * 255),
+                                                int(hand_landmarks.landmark[8].x * 255), int(hand_landmarks.landmark[8].y * 255)))
+
             for i in range(1, 20):
                 if i == 4:
                     arr = np.append(arr, (float(
@@ -145,8 +148,8 @@ def gestures(request):
                 return HttpResponse(status=217)
             elif predicted == 8:
                 return HttpResponse(status=218)
-            elif predicted == 9:
-                return HttpResponse(status=219)
+            elif predicted == 9:   # 간격 리턴
+                return HttpResponse("219-"+str(light_control))
 
         else:
             print("fail")
