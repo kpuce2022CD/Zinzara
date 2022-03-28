@@ -31,14 +31,17 @@ def devices(request):   # 기기 명령하기
 def devices_info(request):   # 기기 정보(이름, 명령어, 시간) 가져오기 및 기기 삭제하기
     data = JSONParser().parse(request)
     search_id = data["user_id"]
-    obj = Devices.objects.filter(user_id=search_id)
+    device_name = data["device_name"]
+    obj = Members.objects.get(user_id=search_id)
 
     if data["pw"] == obj.pw:
-        if request.method == "GET":
+        if request.method == "POST":
+            obj = Devices.objects.filter(user_id=search_id)
             serializer = DevicesSerializer(obj, many=True)
             return JsonResponse(serializer.data, safe=False)
 
         elif request.method == "DELETE":
+            obj = Devices.objects.filter(device_name=device_name)
             obj.delete()
             return HttpResponse(status=250)
 
