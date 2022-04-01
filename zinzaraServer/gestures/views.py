@@ -46,6 +46,10 @@ def find_gradient(a1,a2,b1,b2):
 def gestures(request):
     data = JSONParser().parse(request)
     img = data["img"]
+    serializer = GesturesSerializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save()
 
     img = img + "=" * (4 - len(img) % 4)
     img = base64.b64decode(img)
