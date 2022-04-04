@@ -26,19 +26,20 @@ def hello(request):
 
 @csrf_exempt
 def members(request):
-    if request.method == "POST":   # 사용자 추가하기
+    if request.method == "POST":  # 사용자 추가하기
         data = JSONParser().parse(request)
         user_id = data["user_id"]
         pw = data["pw"]
-        if 4 < len(user_id) < 10 and 4 < len(pw) < 10:
+        if not 4 < len(user_id) < 10:
+            return HttpResponse(status=411)   # id 길이 안맞으면 411 리턴
+        elif not 4 < len(pw) < 10:
+            return HttpResponse(status=412)   # pw 길이 안맞으면 412 리턴
+        else:
             serializer = MembersSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse(serializer.data, status=210)
             return JsonResponse(serializer.errors, status=410)
-        else:
-            return HttpResponse(status=411)   # id, pw 길이 안맞으면 411 리턴
-
 
 
 @csrf_exempt
