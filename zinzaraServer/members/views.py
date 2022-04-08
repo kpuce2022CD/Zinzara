@@ -69,6 +69,15 @@ def members_info(request):
 
 
 @csrf_exempt
+def duplicate_check(request):
+    data = JSONParser().parse(request)
+    if Members.objects.filter(user_id=data["user_id"]).exists():
+        return HttpResponse(status=235)
+    else:
+        return HttpResponse(status=435)
+
+
+@csrf_exempt
 def login(request):   # 로그인
     if request.method == "POST":
         data = JSONParser().parse(request)
