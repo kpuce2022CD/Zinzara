@@ -18,7 +18,7 @@ def language_rehabilitation(request):
 
     if data["pw"] == obj.pw:
         obj = Language_rehabilitation.objects.filter(user_id=search_id)
-        if request.method == "GET":   # 언어 재활 정보(점수, 시간) 가져오기
+        if request.method == "PUT":   # 언어 재활 정보(점수, 시간) 가져오기
             serializer = LanguageSerializer(obj, many=True)
             return JsonResponse(serializer.data, safe=False)
 
@@ -42,7 +42,7 @@ def physical_rehabilitation(request):
 
     if data["pw"] == obj.pw:
         obj = Physical_rehabilitation.objects.filter(user_id=search_id)
-        if request.method == "GET":  # 운동 재활 정보(점수, 시간) 가져오기
+        if request.method == "PUT":  # 운동 재활 정보(점수, 시간) 가져오기
             serializer = PhysicalSerializer(obj, many=True)
             return JsonResponse(serializer.data, safe=False)
 
