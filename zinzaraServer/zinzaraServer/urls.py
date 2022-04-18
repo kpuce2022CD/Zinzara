@@ -18,14 +18,13 @@ from django.urls import path
 from django.conf.urls import url, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
-#from members import Mviews
+# from members import Mviews
 import members.views as Mviews
-#from devices import Dviews
+# from devices import Dviews
 import devices.views as Dviews
-#from rehabilitation import Rviews
+# from rehabilitation import Rviews
 import rehabilitation.views as Rviews
 import gestures.views as Gviews
-
 
 
 urlpatterns = [
@@ -40,4 +39,5 @@ urlpatterns = [
     path("language-rehabilitation/", Rviews.language_rehabilitation),
     path("physical-rehabilitation/", Rviews.physical_rehabilitation),
     path("gestures/", Gviews.gestures),
+    path("duplicate-check/", Mviews.duplicate_check),
 ]
