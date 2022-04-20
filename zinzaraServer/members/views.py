@@ -14,15 +14,6 @@ from .serializers import MembersSerializer
 def hello(request):
     return HttpResponse("Zinzara Server")
 
-# data = JSONParser().parse(request)
-#         search_id = data["user_id"]
-#         obj = Members.objects.get(user_id=search_id)
-#
-#         if data["pw"] == obj.pw:
-#             return HttpResponse(status=200)
-#         else:
-#             return HttpResponse(status=400)
-
 
 @csrf_exempt
 def members(request):
@@ -48,23 +39,20 @@ def members_info(request):
     search_id = data["user_id"]
     obj = Members.objects.get(user_id=search_id)
 
-    if data["pw"] == obj.pw:
-        if request.method == "DELETE":  # 사용자 삭제하기
-            obj.delete()
-            return HttpResponse(status=230)
-
-        elif request.method == "GET":  # 사용자 정보 가져오기
-            serializer = MembersSerializer(obj)
-            return JsonResponse(serializer.data, safe=False)
-
-        elif request.method == "PUT":   # 사용자 정보 수정하기
-            serializer = MembersSerializer(obj, data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return JsonResponse(serializer.data, status=220)
-            return JsonResponse(serializer.errors, status=420)
-
+    if request.method == "PUT":  # 사용자 정보 수정하기
+        serializer = MembersSerializer(obj, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=220)
+        return JsonResponse(serializer.errors, status=420)
     else:
+        if data["pw"] == obj.pw:
+            if request.method == "DELETE":  # 사용자 삭제하기
+                obj.delete()
+                return HttpResponse(status=230)
+            elif request.method == "POST":  # 사용자 정보 가져오기
+                serializer = MembersSerializer(obj)
+                return JsonResponse(serializer.data, safe=False)
         return HttpResponse(status=430)
 
 
@@ -78,7 +66,7 @@ def duplicate_check(request):
 
 
 @csrf_exempt
-def login(request):   # 로그인
+def login(request):  # 로그인
     if request.method == "POST":
         data = JSONParser().parse(request)
         search_id = data["user_id"]
@@ -88,4 +76,3 @@ def login(request):   # 로그인
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=400)
-
