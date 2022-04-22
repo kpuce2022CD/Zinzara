@@ -8,3 +8,6 @@ class Gestures(models.Model):
     #base64 = models.TextField(blank=True)
     img = models.TextField(default='')
 
+    class Meta:
+        db_table = "gestures"
+

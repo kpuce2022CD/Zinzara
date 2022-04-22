@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 import uuid
 import base64
 
+
 class GesturesSerializer(serializers.ModelSerializer):
     # class Meta:
     #     model = Gestures
