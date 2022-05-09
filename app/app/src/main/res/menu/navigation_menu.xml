@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_manage_device"
+            android:title="기기 관리"
+            android:fontFamily="@font/regular"
+            />
+
+        <item
+            android:id="@+id/manage_score"
+            android:title="점수관리"
+            android:fontFamily="@font/regular"
+            />
+
+        <item
+            android:id="@+id/logout"
+            android:title="로그아웃"
+            android:fontFamily="@font/regular"
+            />
+    </group>
+</menu>

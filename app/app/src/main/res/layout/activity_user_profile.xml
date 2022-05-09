@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Page"
+            android:textSize="40dp"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_id"
+            android:hint="ID"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/tv_pw"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:textSize="20dp"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/tv_phone"
+            android:hint="Password"
+            android:textSize="20dp"
+            android:inputType="textPassword"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/tv_created"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="10dp"
+            android:textSize="20dp"
+            />
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:id="@+id/change_password"
+            android:background="@drawable/button2"
+            android:text="비밀번호 변경하기"
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:layout_marginTop="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="회원 탈퇴"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:id="@+id/delete_account"
+                android:layout_weight="1"
+                android:textStyle="bold"/>
+
+
+    </LinearLayout>
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
