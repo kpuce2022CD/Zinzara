@@ -15,5 +15,20 @@ services:
   web:
     build: .
     container_name: zinzaraWeb
+    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && gunicorn zinzaraServer.wsgi:application -b 0:80"
+    volumes:
+      - ./zinzaraServer:/zinzaraServer
     depends_on:
       - db
+
+  db:
+    image: mariadb:10.4
+    container_name: zinzaraDB
+    ports:
+        - "3306:3306"
+    environment:
+      - TZ="Asia/Seoul"
+      - MYSQL_ROOT_PASSWORD:zinzara123
+      - MYSQL_DATABASE:zinzara
+      - MYSQL_USER:root
+      - MYSQL_PASSWORD:zinzara123
