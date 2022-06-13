@@ -8,6 +8,7 @@ class Members(models.Model):
     user_id = models.CharField(primary_key=True, max_length=30, db_column="user_id")
     pw = models.CharField(max_length=15, db_column="pw")
     phone_number = models.CharField(max_length=13, db_column="phone_number")
+    sub_phone_number = models.CharField(max_length=13, db_column="sub_phone_number")
     created = models.DateTimeField(auto_now_add=True, db_column="created")
 
     class Meta:
