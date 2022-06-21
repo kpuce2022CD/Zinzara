@@ -30,7 +30,7 @@
 
         <HorizontalScrollView
             android:id="@+id/horizontalScrollViewFloat"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/horizontalScrollView"
             android:layout_alignParentStart="true"
@@ -39,7 +39,7 @@
             <view
                 android:id="@+id/line_view_float"
                 class="im.dacer.androidcharts.LineView"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="200dp" />
         </HorizontalScrollView>
     </FrameLayout>
