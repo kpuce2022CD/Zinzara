@@ -29,11 +29,29 @@ interface UserAPIS {
         @Body jsonparams: ReExerciseSend
     ):Call<ReExerciseInfo>
 
-    @POST("/physical-rehabilitation/")
+    @PUT("/physical-rehabilitation/")
     @Headers("accept: application/json", "content-type: application/json")
     fun getReExercise(
         @Body jsonparams: UserInfo
-    ):Call<ReExerciseResponse>
+    ):Call<List<ReExerciseInfo>>
+
+    @PUT("/language-rehabilitation/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun getReLanguage(
+        @Body jsonparams: UserInfo
+    ):Call<List<ReLanguageInfo>>
+
+    @PUT("/duplicate-check/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun putDuplicate(
+        @Body jsonparams: UserId
+    ):Call<String>
+
+    @POST("/language-rehabilitation/")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun postReLanguge(
+        @Body jsonparams: ReLanguageSend
+    ):Call<ReLanguageInfo>
 
     @POST("/gestures/")
     @Headers("accept: application/json", "content-type: application/json")
@@ -41,17 +59,7 @@ interface UserAPIS {
         @Body jsonparams: ImgInfo
     ):Call<String>
 
-    @POST("/language-rehabilitation/")
-    @Headers("accept: application/json", "content-type: application/json")
-    fun getReLanguage(
-        @Body jsonparams: UserInfo
-    ):Call<ReLanguageResponse>
 
-    @PUT("/duplicate-check/")
-    @Headers("accept: application/json", "content-type: application/json")
-    fun putDuplicate(
-        @Body jsonparams: UserId
-    ):Call<String>
 
     @POST("/members-info/")
     @Headers("accept: application/json", "content-type: application/json")

@@ -8,15 +8,13 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.example.smarthomeforstroke.databinding.ActivityScoreManageBinding
+import com.example.smarthomeforstroke.rehabilitation.ReLanguage
 import com.example.smarthomeforstroke.sign.UserAPIS
 import im.dacer.androidcharts.LineView
-import okio.Utf8.size
 import retrofit2.Call
 import java.util.ArrayList
 import retrofit2.Callback
 import retrofit2.Response
-import java.nio.file.Files.size
-
 
 class ScoreManageActivity : AppCompatActivity() {
 
@@ -25,12 +23,10 @@ class ScoreManageActivity : AppCompatActivity() {
     private var mBinding: ActivityScoreManageBinding? = null
     private val binding get() = mBinding!!
 
-    val PREFERENCE = "com.example.smarthomeforstroke"
-
-    var randomint = 9
     val ex_score_list = ArrayList<Int>()
     val la_score_list = ArrayList<Int>()
 
+    val PREFERENCE = "com.example.smarthomeforstroke"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,74 +36,79 @@ class ScoreManageActivity : AppCompatActivity() {
         var pref = getSharedPreferences(PREFERENCE, MODE_PRIVATE)
         var id = pref.getString("user_id", "")
         var pw = pref.getString("pw", "")
-        val lineView = findViewById<View>(R.id.line_view) as LineView
-        val lineViewFloat = findViewById<View>(R.id.line_view_float) as LineView
 
+
+        val lineViewEx = findViewById<View>(R.id.line_view_ex) as LineView
+        val lineViewLa = findViewById<View>(R.id.line_view_la) as LineView
+
+        val handler = Handler()
+        handler.postDelayed(
+            Runnable {
+                initLineViewEx(lineViewEx)
+                initLineViewLa(lineViewLa)
+                graphSet(lineViewEx, lineViewLa)
+            }, 500
+        )
         val userInfo = UserInfo(id.toString(), pw.toString())
-        userAPIS.getReExercise(userInfo).enqueue( object : Callback<ReExerciseResponse>{
-            override fun onResponse(
-                call: Call<ReExerciseResponse>,
-                response: Response<ReExerciseResponse>
+        userAPIS.getReExercise(userInfo).enqueue(object : Callback<List<ReExerciseInfo>> {
+            override fun onResponse(call: Call<List<ReExerciseInfo>>, response: Response<List<ReExerciseInfo>>
             ) {
-                val exercise = response.body()
-                Log.d("exercise body", exercise.toString())
-                val score_num = exercise?.exerciseScores?.size
-                Log.d("ex body", score_num.toString())
-
-                if (score_num == 0){
+                val reExerciseInfo = response.body()
+                Log.d("exercise", reExerciseInfo.toString())
+                if (reExerciseInfo!!.isEmpty()){
                     binding.exNoScore.visibility = View.VISIBLE
                 } else{
-                    for (i in 0 until score_num!!){
-                        ex_score_list.add(exercise.exerciseScores[score_num].physical_score)
+                    for (i in reExerciseInfo.indices){
+                        ex_score_list.add(reExerciseInfo[i].physical_score)
                     }
                 }
-
+                Log.d("exercise", ex_score_list.toString())
             }
-
-            override fun onFailure(call: Call<ReExerciseResponse>, t: Throwable) {
+            override fun onFailure(call: Call<List<ReExerciseInfo>>, t: Throwable) {
                 errorDialog("EXERCISE SCORE", t)
             }
 
         })
 
-        userAPIS.getReLanguage(userInfo).enqueue(object : Callback<ReLanguageResponse>{
-            override fun onResponse(
-                call: Call<ReLanguageResponse>,
-                response: Response<ReLanguageResponse>
+        userAPIS.getReLanguage(userInfo).enqueue(object : Callback<List<ReLanguageInfo>> {
+            override fun onResponse(call: Call<List<ReLanguageInfo>>, response: Response<List<ReLanguageInfo>>
             ) {
-                val language = response.body()
-                Log.d("language body", language.toString())
-                val score_num = language?.languageScores?.size
-                Log.d("la body", score_num.toString())
-
-                if (score_num == 0){
-                    binding.laNoScore.visibility = View.VISIBLE
+                val reLanguageInfo = response.body()
+                Log.d("language", reLanguageInfo.toString())
+                if (reLanguageInfo!!.isEmpty()){
+                    binding.exNoScore.visibility = View.VISIBLE
                 } else{
-                    for(i in 0 until score_num!!){
-                        la_score_list.add(language.languageScores[score_num].language_score)
+                    for (i in reLanguageInfo.indices){
+                        la_score_list.add(reLanguageInfo[i].language_score)
                     }
                 }
+                Log.d("language", la_score_list.toString())
             }
-
-            override fun onFailure(call: Call<ReLanguageResponse>, t: Throwable) {
-                errorDialog("LANGUAGE SCORE", t)
+            override fun onFailure(call: Call<List<ReLanguageInfo>>, t: Throwable) {
+                errorDialog("EXERCISE SCORE", t)
             }
 
         })
-
-        val handler = Handler()
-        handler.postDelayed(
-            Runnable {
-                initLineViewFloat(lineViewFloat)
-                initLineView(lineView)
-                graphSet(lineView, lineViewFloat)
-            }, 500
-        )
     }
 
-    private fun initLineViewFloat(lineView: LineView) {
+    private fun initLineViewEx(lineView: LineView) {
         val test = ArrayList<String>()
-        for (i in 0 until randomint) {
+        for (i in 0 until ex_score_list.size) {
+            test.add((i + 1).toString())
+        }
+        lineView.setBottomTextList(test)
+        lineView.setColorArray(
+            intArrayOf(
+                Color.parseColor("#008000")
+            )
+        )
+        lineView.setDrawDotLine(true)
+        lineView.setShowPopup(LineView.SHOW_POPUPS_NONE)
+    }
+
+    private fun initLineViewLa(lineView: LineView) {
+        val test = ArrayList<String>()
+        for (i in 0 until la_score_list.size) {
             test.add((i + 1).toString())
         }
         lineView.setBottomTextList(test)
@@ -119,34 +120,15 @@ class ScoreManageActivity : AppCompatActivity() {
         lineView.setDrawDotLine(true)
         lineView.setShowPopup(LineView.SHOW_POPUPS_NONE)
     }
-    private fun initLineView(lineView: LineView) {
-        val test = ArrayList<String>()
-        for (i in 0 until randomint) {
-            test.add((i + 1).toString())
-        }
-        lineView.setBottomTextList(test)
-        lineView.setColorArray(
-            intArrayOf(
-                Color.parseColor("#008062")
-            )
-        )
-        lineView.setDrawDotLine(true)
-        lineView.setShowPopup(LineView.SHOW_POPUPS_NONE)
-    }
-    private fun graphSet(lineViewFloat: LineView, lineView: LineView) {
-        for (i in 0 until randomint) {
-            la_score_list.add(i)
-        }
-        val dataLists: ArrayList<ArrayList<Int>> = ArrayList()
-        dataLists.add(la_score_list)
-        lineView.setDataList(dataLists)
 
-        for (i in 0 until randomint) {
-            ex_score_list.add(i)
-        }
-        val dataListFs: ArrayList<ArrayList<Int>> = ArrayList()
-        dataListFs.add(ex_score_list)
-        lineViewFloat.setDataList(dataListFs)
+    private fun graphSet(lineViewEx: LineView, lineViewLa: LineView) {
+        val dataListEx: ArrayList<ArrayList<Int>> = ArrayList()
+        dataListEx.add(ex_score_list)
+        lineViewEx.setDataList(dataListEx)
+
+        val dataListLa: ArrayList<ArrayList<Int>> = ArrayList()
+        dataListLa.add(la_score_list)
+        lineViewLa.setDataList(dataListLa)
     }
 
     fun errorDialog(msg: String, t: Throwable){

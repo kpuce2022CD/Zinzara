@@ -1,10 +1,11 @@
-package com.example.smarthomeforstroke
+package com.example.smarthomeforstroke.rehabilitation
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
 import android.util.Log
@@ -13,6 +14,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.smarthomeforstroke.ReLanguageInfo
+import com.example.smarthomeforstroke.ReLanguageSend
+import com.example.smarthomeforstroke.Rehabilitation
 import com.example.smarthomeforstroke.databinding.ActivityReLanguageBinding
 import com.example.smarthomeforstroke.sign.UserAPIS
 import retrofit2.Call
@@ -33,7 +37,8 @@ class ReLanguage : AppCompatActivity() {
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var recognitionListener: RecognitionListener
 
-    val question_list : Array<String> = arrayOf("병아리", "쇠창살", "양면테이프", "경찰청", "간장","공장","공장장", "콩깍지", "강낭콩","껍질","된장")
+    val question_list : Array<String> = arrayOf("병아리", "쇠창살", "양면테이프", "경찰청", "간장","공장","공장장", "콩깍지", "강낭콩","껍질","된장",
+    "왕밤빵", "강변북로", "참치 꽁치 찜","확률 분포","최첨판댁","안정청","강력 접착제", "법학박사")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,22 +87,25 @@ class ReLanguage : AppCompatActivity() {
                 dialog.setTitle("언어재활")
                 dialog.setMessage("끝")
                 dialog.show()
-                val reExerciseSend = ReExerciseSend(id.toString(), pw.toString(), cnt, "")
-                userAPIS.postReExercise(reExerciseSend).enqueue(object : Callback<ReExerciseInfo> {
+                val reLanguageSend = ReLanguageSend(id.toString(), pw.toString(), score, "")
+                userAPIS.postReLanguge(reLanguageSend).enqueue(object : Callback<ReLanguageInfo> {
                     override fun onResponse(
-                        call: Call<ReExerciseInfo>,
-                        response: Response<ReExerciseInfo>
+                        call: Call<ReLanguageInfo>,
+                        response: Response<ReLanguageInfo>
                     ) {
                         var builder = AlertDialog.Builder(this@ReLanguage)
                         builder.setTitle("점수 저장 되었습니다")
                         builder.setMessage(score.toString() + "점이에요!♡")
                         builder.show()
-                        Thread.sleep(3000)
-                        startActivity(intent)
-                        finish()
+                        val handler = Handler()
+                        handler.postDelayed(
+                            Runnable {
+                                startActivity(intent)
+                                finish()
+                            }, 500
+                        )
                     }
-
-                    override fun onFailure(call: Call<ReExerciseInfo>, t: Throwable) {
+                    override fun onFailure(call: Call<ReLanguageInfo>, t: Throwable) {
                         errorDialog("점수저장", t)
                     }
 

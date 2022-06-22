@@ -64,7 +64,7 @@
             android:name=".MainActivity"
             android:exported="true"></activity>
         <activity android:name=".SmartHome" />
-        <activity android:name=".ReLanguage" />
+        <activity android:name=".rehabilitation.ReLanguage" />
         <activity
             android:name=".Rehabilitation"
             android:exported="true">

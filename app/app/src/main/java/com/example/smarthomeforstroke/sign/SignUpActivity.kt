@@ -29,7 +29,6 @@ class SignUpActivity : AppCompatActivity() {
         mBinding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.editPhonenum.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         binding.editPwConfirm.addTextChangedListener(object : TextWatcher{
             override fun afterTextChanged(p0: Editable?) {
@@ -109,11 +108,13 @@ class SignUpActivity : AppCompatActivity() {
             val id = binding.editId.text.toString()
             val pw = binding.editPw.text.toString()
             val pn = binding.editPhonenum.text.toString()
+            val pn_sub = binding.editSubPhonenum.text.toString()
 
-            val signUpInfo = SignUpInfo(id, pw, pn, "")
+            val signUpInfo = SignUpInfo(id, pw, pn ,pn_sub, "")
             signUpInfo.user_id = id
             signUpInfo.pw = pw
             signUpInfo.phone_number = pn
+            signUpInfo.sub_phone_number=pn_sub
 
             userAPIS.requestSignUp(signUpInfo).enqueue(object : Callback<SignUpInfo>{
                 override fun onResponse(call: Call<SignUpInfo>, response: Response<SignUpInfo>) {

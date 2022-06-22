@@ -16,11 +16,11 @@
         android:textStyle="bold"/>
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="점수가 없어요!"
             android:layout_gravity="center"
@@ -29,7 +29,7 @@
 
 
         <HorizontalScrollView
-            android:id="@+id/horizontalScrollViewFloat"
+            android:id="@+id/horizontalScrollViewEx"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/horizontalScrollView"
@@ -37,7 +37,7 @@
             android:layout_alignParentRight="true">
 
             <view
-                android:id="@+id/line_view_float"
+                android:id="@+id/line_view_ex"
                 class="im.dacer.androidcharts.LineView"
                 android:layout_width="match_parent"
                 android:layout_height="200dp" />
@@ -57,7 +57,7 @@
         android:textStyle="bold"/>
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
@@ -69,11 +69,11 @@
             android:id="@+id/la_no_score"/>
 
         <HorizontalScrollView
-            android:id="@+id/horizontalScrollView"
+            android:id="@+id/horizontalScrollViewLa"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
             <view
-                android:id="@+id/line_view"
+                android:id="@+id/line_view_la"
                 class="im.dacer.androidcharts.LineView"
                 android:layout_width="wrap_content"
                 android:layout_height="200dp" />

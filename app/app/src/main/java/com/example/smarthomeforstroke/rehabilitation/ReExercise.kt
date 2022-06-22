@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.os.Bundle
+import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.widget.Button
@@ -143,11 +144,14 @@ class ReExercise : AppCompatActivity() {
                     builder.setTitle("점수 저장 되었습니다")
                     builder.setMessage(cnt.toString() + "점이에요!♡")
                     builder.show()
-                    Thread.sleep(3000)
-                    startActivity(intent)
-                    finish()
+                    val handler = Handler()
+                    handler.postDelayed(
+                        Runnable {
+                            startActivity(intent)
+                            finish()
+                        }, 500
+                    )
                 }
-
                 override fun onFailure(call: Call<ReExerciseInfo>, t: Throwable) {
                     errorDialog("점수저장", t)
                 }
