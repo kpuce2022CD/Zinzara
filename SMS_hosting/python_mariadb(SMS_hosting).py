@@ -23,8 +23,11 @@ cur = conn.cursor()
 cur.execute("select * from physical_rehabilitation")
 result1 = cur.fetchall()
 
-cur.execute("select * from members")
+cur.execute("select * from language_rehabilitation")
 result2 = cur.fetchall()
+
+cur.execute("select * from members")
+result3 = cur.fetchall()
 
 number_d = {}
 d = {}
@@ -37,11 +40,25 @@ for record in result1:
     clear_d[record[3]] = []
 
 for record in result2:
+    if record[3] not in clear_d.keys():
+        clear_d[record[3]] = []
+
+for record in result3:
     if record[0] not in number_d.keys():
         number_d[record[0]] = record[3]
 
 for record in result1:
-    if record[0] <= 50:
+    if record[0] <= 2:   # 점수 기준
+        t = str(record[1])
+        t = t[:16]
+
+        if record[3] in d.keys():
+            d[record[3]].append(t + "=" + str(record[0]))
+        else:
+            d[record[3]] = [t + "=" + str(record[0])]
+
+for record in result2:
+    if record[0] <= 2:   # 점수 기준
         t = str(record[1])
         t = t[:16]
 
@@ -93,16 +110,29 @@ while True:
     cur.execute("select * from physical_rehabilitation")
     result1 = cur.fetchall()
 
-    cur.execute("select * from members")
+    cur.execute("select * from language_rehabilitation")
     result2 = cur.fetchall()
 
+    cur.execute("select * from members")
+    result3 = cur.fetchall()
+
     for record in result1:
-        if record[0] <= 50:
+        if record[0] <= 2:
             t = str(record[1])
             t = t[:16]
             tmp = t + "=" + str(record[0])
 
-            # print(clear_d[record[3]])
+            if tmp not in clear_d[record[3]]:
+                if record[3] in d.keys():
+                    d[record[3]].append(tmp)
+                else:
+                    d[record[3]] = [tmp]
+
+    for record in result2:
+        if record[0] <= 2:  # 점수 기준
+            t = str(record[1])
+            t = t[:16]
+            tmp = t + "=" + str(record[0])
 
             if tmp not in clear_d[record[3]]:
                 if record[3] in d.keys():
