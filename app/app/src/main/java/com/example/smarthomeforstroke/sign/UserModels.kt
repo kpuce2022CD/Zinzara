@@ -9,6 +9,7 @@ data class SignUpInfo(
     var user_id : String,
     var pw : String,
     var phone_number : String,
+    var sub_phone_number : String,
     var created : String?
 )
 
@@ -21,6 +22,13 @@ data class ReExerciseSend(
     var user_id : String,
     var pw : String,
     var physical_score : Int,
+    var rehabilitation_time : String
+)
+
+data class ReLanguageSend(
+    var user_id : String,
+    var pw : String,
+    var language_score : Int,
     var rehabilitation_time : String
 )
 
