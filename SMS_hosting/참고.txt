@@ -1,0 +1,1 @@
+실행시 nohup python3 파일명 &
