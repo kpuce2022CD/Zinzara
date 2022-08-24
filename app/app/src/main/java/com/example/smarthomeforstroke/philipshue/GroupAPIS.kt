@@ -17,7 +17,7 @@ interface GroupAPIS {
     companion object {
         fun create(url:String): GroupAPIS {
             val gson: Gson = GsonBuilder().setLenient().create()
-            val BASE_URL = "http://$url/api/npdHhwWW9zTQdOl1Vvd49xNWcGsKxmDM224akjbE/"
+            val BASE_URL = "http://$url/api/mdUrA3XCCPKcJWBshLoRCvbH6xvbgcGecuEensVj/"
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))

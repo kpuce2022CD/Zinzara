@@ -555,19 +555,19 @@ class SmartHome : AppCompatActivity() {
                     ||matches.contains("일번켜")||matches.contains("1번 켜")||matches.contains("일번 켜")
                     ||matches.contains("1번 조명 켜")||matches.contains("일번 조명 켜")||matches.contains("1번 조명 켜 줘")||matches.contains("일번 조명 켜 줘")
                     ||matches.contains("1번 불 켜")||matches.contains("일번 불 켜")||matches.contains("1번 불 켜 줘")||matches.contains("일번 불 켜 줘")){
-                        Toast.makeText(applicationContext, "1번 켬", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "1번 켬", Toast.LENGTH_SHORT).show()
 
-                        lightOnOffState("1")
-                        var handler = Handler()
-                        handler.postDelayed(
-                            Runnable {
-                                if (lightOnOff == "0"){
-                                    setlightOnOff(true, "1")
-                                    val light_tts = "1번 조명이 켜집니다."
-                                    tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
-                                }
-                                     }, 500
-                        )
+                    lightOnOffState("1")
+                    var handler = Handler()
+                    handler.postDelayed(
+                        Runnable {
+                            if (lightOnOff == "0"){
+                                setlightOnOff(true, "1")
+                                val light_tts = "1번 조명이 켜집니다."
+                                tts!!.speak(light_tts, TextToSpeech.QUEUE_FLUSH, null)
+                            }
+                        }, 500
+                    )
                 }
                 else if (matches.contains("일번 꺼 줘")||matches.contains("1번 꺼줘")||matches.contains("1번 꺼 줘")||matches.contains("일번 꺼줘")
                     ||matches.contains("일번꺼줘")||matches.contains("1번꺼줘")||matches.contains("1번꺼")
@@ -665,15 +665,13 @@ class SmartHome : AppCompatActivity() {
     }
 
     fun errorDialog(msg: String, t: Throwable){
-            val dialog = AlertDialog.Builder(this)
-            Log.e(msg, t.message.toString())
-            dialog.setTitle("$msg 에러")
-            dialog.setMessage("호출실패했습니다.")
-            dialog.show()
+        val dialog = AlertDialog.Builder(this)
+        Log.e(msg, t.message.toString())
+        dialog.setTitle("$msg 에러")
+        dialog.setMessage("호출실패했습니다.")
+        dialog.show()
     }
     fun toast(message: String){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
-
 }

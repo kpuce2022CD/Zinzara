@@ -17,6 +17,12 @@ interface UserAPIS {
         @Body jsonparams: SignInInfo
     ):Call<String>
 
+    @DELETE("members-info")
+    @Headers("accept: application/json", "content-type: application/json")
+    fun deleteUser(
+        @Body jsonparams: SignInInfo
+    ):Call<String>
+
     @POST("/members/")
     @Headers("accept: application/json", "content-type: application/json")
     fun requestSignUp(

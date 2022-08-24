@@ -38,7 +38,7 @@
             android:name=".ScoreManageActivity"
             android:exported="true" />
         <activity
-            android:name=".UserProfileActivity"
+            android:name=".sign.UserProfileActivity"
             android:exported="true" />
         <activity
             android:name=".sign.SignInActivity"

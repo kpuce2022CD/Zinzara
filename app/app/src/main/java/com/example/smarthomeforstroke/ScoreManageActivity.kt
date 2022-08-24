@@ -49,6 +49,7 @@ class ScoreManageActivity : AppCompatActivity() {
                 graphSet(lineViewEx, lineViewLa)
             }, 500
         )
+
         val userInfo = UserInfo(id.toString(), pw.toString())
         userAPIS.getReExercise(userInfo).enqueue(object : Callback<List<ReExerciseInfo>> {
             override fun onResponse(call: Call<List<ReExerciseInfo>>, response: Response<List<ReExerciseInfo>>

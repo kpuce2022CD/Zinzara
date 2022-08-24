@@ -26,41 +26,39 @@
             />
 
         <TextView
-            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="20dp"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:id="@+id/tv_id"
-            android:hint="ID"
+            android:textStyle="bold"
             android:textSize="20dp"/>
 
         <TextView
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:id="@+id/tv_pw"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:textSize="20dp"
-            android:layout_marginBottom="10dp"/>
-
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:id="@+id/tv_phone"
-            android:hint="Password"
             android:textSize="20dp"
-            android:inputType="textPassword"
-            android:layout_marginBottom="10dp"/>
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"/>
 
         <TextView
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:id="@+id/tv_created"
-            android:hint="Password"
-            android:inputType="textPassword"
+            android:id="@+id/tv_sub_phone"
+            android:textSize="20dp"
+            android:textStyle="bold"
             android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:id="@+id/tv_created"
+            android:textStyle="bold"
             android:textSize="20dp"
             />
 
